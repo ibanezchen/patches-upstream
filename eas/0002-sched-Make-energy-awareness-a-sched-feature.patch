@@ -1,0 +1,51 @@
+From 3f3800f9d59e405c41ec633757fba1ff3ee0d7fe Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Thu, 3 Jul 2014 16:25:49 +0800
+Subject: [PATCH 02/23] sched: Make energy awareness a sched feature
+
+This patch introduces the ENERGY_AWARE sched feature, which is
+implemented using jump labels when SCHED_DEBUG is defined. It is
+statically set false when SCHED_DEBUG is not defined. Hence this doesn't
+allow energy awareness to be enabled without SCHED_DEBUG. This
+sched_feature knob will be replaced later with a more appropriate
+control knob when things have matured a bit.
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ kernel/sched/fair.c     | 5 +++++
+ kernel/sched/features.h | 6 ++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index df2cdf7..3a884a6 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4462,6 +4462,11 @@ static long effective_load(struct task_group *tg, int cpu, long wl, long wg)
+ 
+ #endif
+ 
++static inline bool energy_aware(void)
++{
++	return sched_feat(ENERGY_AWARE);
++}
++
+ static int wake_wide(struct task_struct *p)
+ {
+ 	int factor = this_cpu_read(sd_llc_size);
+diff --git a/kernel/sched/features.h b/kernel/sched/features.h
+index 90284d1..199ee3a 100644
+--- a/kernel/sched/features.h
++++ b/kernel/sched/features.h
+@@ -83,3 +83,9 @@ SCHED_FEAT(NUMA_FAVOUR_HIGHER, true)
+  */
+ SCHED_FEAT(NUMA_RESIST_LOWER, false)
+ #endif
++
++/*
++ * Energy aware scheduling. Use platform energy model to guide scheduling
++ * decisions optimizing for energy efficiency.
++ */
++SCHED_FEAT(ENERGY_AWARE, false)
+-- 
+1.9.1
+

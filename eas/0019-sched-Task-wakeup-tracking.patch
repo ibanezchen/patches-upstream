@@ -1,0 +1,80 @@
+From f3830ba17f4542cf28d3e29e500d63f4a747bd6f Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Thu, 3 Jul 2014 16:26:06 +0800
+Subject: [PATCH 19/23] sched: Task wakeup tracking
+
+Track task wakeup rate in wakeup_avg_sum by counting wakeups. Note that
+this is _not_ cpu wakeups (idle exits). Task wakeups only cause cpu
+wakeups if the cpu is idle when the task wakeup occurs.
+
+The wakeup rate decays over time at the same rate as used for the
+existing entity load tracking. Unlike runnable_avg_sum, wakeup_avg_sum
+is counting events, not time, and is therefore theoretically unbounded
+and should be used with care.
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ include/linux/sched.h |  3 +++
+ kernel/sched/fair.c   | 18 ++++++++++++++++++
+ 2 files changed, 21 insertions(+)
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 150e024..065d9d8 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1143,6 +1143,9 @@ struct sched_avg {
+ 	s64 decay_count;
+ 	unsigned long load_avg_contrib;
+ 	unsigned long uw_load_avg_contrib;
++
++	unsigned long last_wakeup_update;
++	u32 wakeup_avg_sum;
+ };
+ 
+ #ifdef CONFIG_SCHEDSTATS
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index bf210bb..ac1a098 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -681,6 +681,8 @@ void init_task_runnable_average(struct task_struct *p)
+ 	p->se.avg.runnable_avg_sum = slice;
+ 	p->se.avg.runnable_avg_period = slice;
+ 	__update_task_entity_contrib(&p->se);
++
++	p->se.avg.last_wakeup_update = jiffies;
+ }
+ #else
+ void init_task_runnable_average(struct task_struct *p)
+@@ -4359,6 +4361,21 @@ static void record_wakee(struct task_struct *p)
+ 	}
+ }
+ 
++static void update_wakeup_avg(struct task_struct *p)
++{
++	struct sched_entity *se = &p->se;
++	struct sched_avg *sa = &se->avg;
++	unsigned long now = ACCESS_ONCE(jiffies);
++
++	if (time_after(now, sa->last_wakeup_update)) {
++		sa->wakeup_avg_sum = decay_load(sa->wakeup_avg_sum,
++				jiffies_to_msecs(now - sa->last_wakeup_update));
++		sa->last_wakeup_update = now;
++	}
++
++	sa->wakeup_avg_sum += 1024;
++}
++
+ static void task_waking_fair(struct task_struct *p)
+ {
+ 	struct sched_entity *se = &p->se;
+@@ -4379,6 +4396,7 @@ static void task_waking_fair(struct task_struct *p)
+ 
+ 	se->vruntime -= min_vruntime;
+ 	record_wakee(p);
++	update_wakeup_avg(p);
+ }
+ 
+ #ifdef CONFIG_FAIR_GROUP_SCHED
+-- 
+1.9.1
+

@@ -1,0 +1,98 @@
+From 5718bb3e7633a155504d81ab94b12af023af2764 Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Thu, 3 Jul 2014 16:26:02 +0800
+Subject: [PATCH 15/23] sched, cpufreq: Introduce current cpu compute capacity
+ into scheduler
+
+The scheduler is currently unaware of frequency changes and the current
+compute capacity offered by the cpus. This patch is not the solution.
+It is a hack to give us something to experiment with for now.
+
+A proper solution could be based on the frequency invariant load
+tracking proposed in the past: https://lkml.org/lkml/2013/4/16/289
+The best way to get current compute capacity is likely to be
+architecture specific. A potential solution is therefore to let the
+architecture implement get_curr_capacity() instead.
+
+This patch should _not_ be considered safe.
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ drivers/cpufreq/cpufreq.c |  2 ++
+ include/linux/sched.h     |  2 ++
+ kernel/sched/fair.c       | 11 +++++++++++
+ kernel/sched/sched.h      |  2 ++
+ 4 files changed, 17 insertions(+)
+
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index a09a29c..528933e 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/suspend.h>
+ #include <linux/tick.h>
++#include <linux/sched.h>
+ #include <trace/events/power.h>
+ 
+ /**
+@@ -315,6 +316,7 @@ static void __cpufreq_notify_transition(struct cpufreq_policy *policy,
+ 		pr_debug("FREQ: %lu - CPU: %lu\n",
+ 			 (unsigned long)freqs->new, (unsigned long)freqs->cpu);
+ 		trace_cpu_frequency(freqs->new, freqs->cpu);
++		set_curr_capacity(freqs->cpu, (freqs->new*1024)/policy->max);
+ 		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
+ 				CPUFREQ_POSTCHANGE, freqs);
+ 		if (likely(policy) && likely(policy->cpu == freqs->cpu))
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 31fa491..150e024 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -3102,4 +3102,6 @@ static inline unsigned long rlimit_max(unsigned int limit)
+ 	return task_rlimit_max(current, limit);
+ }
+ 
++void set_curr_capacity(int cpu, long capacity);
++
+ #endif
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 96782eb..9039168 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7925,9 +7925,20 @@ void init_cfs_rq(struct cfs_rq *cfs_rq)
+ 	atomic64_set(&cfs_rq->decay_counter, 1);
+ 	atomic_long_set(&cfs_rq->removed_load, 0);
+ 	atomic_long_set(&cfs_rq->uw_removed_load, 0);
++	atomic_long_set(&cfs_rq->curr_capacity, 1024);
+ #endif
+ }
+ 
++void set_curr_capacity(int cpu, long capacity)
++{
++	atomic_long_set(&cpu_rq(cpu)->cfs.curr_capacity, capacity);
++}
++
++static inline unsigned long get_curr_capacity(int cpu)
++{
++	return atomic_long_read(&cpu_rq(cpu)->cfs.curr_capacity);
++}
++
+ #ifdef CONFIG_FAIR_GROUP_SCHED
+ static void task_move_group_fair(struct task_struct *p, int queued)
+ {
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 787f7ea..db7f93e 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -369,6 +369,8 @@ struct cfs_rq {
+ 	u64 last_decay;
+ 	atomic_long_t removed_load, uw_removed_load;
+ 
++	atomic_long_t curr_capacity;
++
+ #ifdef CONFIG_FAIR_GROUP_SCHED
+ 	/* Required to track per-cpu representation of a task_group */
+ 	u32 tg_runnable_contrib;
+-- 
+1.9.1
+

@@ -1,0 +1,142 @@
+From a6888f2faac2cb58efa2109f4bdcf4b14464076f Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Thu, 3 Jul 2014 16:25:54 +0800
+Subject: [PATCH 07/23] sched: Introduce system-wide sched_energy
+
+The energy aware algorithm needs system wide energy information on certain
+platforms (e.g. a one socket SMP system). Unfortunately, there is no
+sched_group that covers all cpus in the system, so there is no place to
+attach a system wide sched_group_energy data structure. In such a system,
+the energy data is only attached to the sched groups for the individual
+cpus in the sched domain (sd) MC level.
+
+This patch adds a _hack_ to provide system-wide energy data via the
+sched_domain_topology_level table for such a system.
+
+The problem is that the sched_domain_topology_level table is not an
+interface to provide system-wide data but we want to keep the
+configuration of all energy related data in one place.
+
+The sched_domain_energy_f of the last entry (the one which is
+initialized with {NULL, }) of the sched_domain_topology_level table is
+set to cpu_sys_energy(). Since the sched_domain_mask_f of this entry
+stays NULL it is still not considered for the existing scheduler set-up
+code (see for_each_sd_topology()).
+
+A second call to init_sched_energy() with an sd pointer argument set to
+NULL initializes the system-wide energy structure sse.
+
+There is no system-wide power management on the example platform (ARM TC2)
+which could potentially interact with the scheduler so struct
+sched_group_energy *sse stays NULL.
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ arch/arm/kernel/topology.c |  7 ++++++-
+ kernel/sched/core.c        | 34 ++++++++++++++++++++++++++++++----
+ kernel/sched/sched.h       |  2 ++
+ 3 files changed, 38 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/kernel/topology.c b/arch/arm/kernel/topology.c
+index f56028d..7a6a112 100644
+--- a/arch/arm/kernel/topology.c
++++ b/arch/arm/kernel/topology.c
+@@ -386,6 +386,11 @@ static inline const struct sched_group_energy *cpu_core_energy(int cpu)
+ 			&energy_core_a15;
+ }
+ 
++static inline const struct sched_group_energy *cpu_sys_energy(int cpu)
++{
++	return NULL;
++}
++
+ static inline int cpu_corepower_flags(void)
+ {
+ 	return SD_SHARE_PKG_RESOURCES  | SD_SHARE_POWERDOMAIN;
+@@ -396,7 +401,7 @@ static struct sched_domain_topology_level arm_topology[] = {
+ 	{ cpu_coregroup_mask, cpu_corepower_flags, cpu_core_energy, SD_INIT_NAME(MC) },
+ #endif
+ 	{ cpu_cpu_mask, 0, cpu_cluster_energy, SD_INIT_NAME(DIE) },
+-	{ NULL, },
++	{ NULL,	0, cpu_sys_energy},
+ };
+ 
+ /*
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 0b512b58..167c723 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6132,20 +6132,44 @@ static void init_sched_groups_capacity(int cpu, struct sched_domain *sd)
+ 	atomic_set(&sg->sgc->nr_busy_cpus, sg->group_weight);
+ }
+ 
++/* System-wide energy information. */
++struct sched_group_energy *sse;
++
+ static void init_sched_energy(int cpu, struct sched_domain *sd,
+ 			      struct sched_domain_topology_level *tl)
+ {
+-	struct sched_group *sg = sd->groups;
+-	struct sched_group_energy *energy = sg->sge;
++	struct sched_group *sg = sd ? sd->groups : NULL;
++	struct sched_group_energy *energy = sd ? sg->sge : sse;
+ 	sched_domain_energy_f fn = tl->energy;
+-	struct cpumask *mask = sched_group_cpus(sg);
++	const struct cpumask *mask = sd ? sched_group_cpus(sg) :
++					  cpu_cpu_mask(cpu);
+ 
+-	if (!fn || !fn(cpu))
++	if (!fn || !fn(cpu) || (!sd && energy))
+ 		return;
+ 
+ 	if (cpumask_weight(mask) > 1)
+ 		check_sched_energy_data(cpu, fn, mask);
+ 
++	if (!sd) {
++		energy = sse = kzalloc(sizeof(struct sched_group_energy) +
++				       fn(cpu)->nr_idle_states*
++				       sizeof(struct idle_state) +
++				       fn(cpu)->nr_cap_states*
++				       sizeof(struct capacity_state),
++				       GFP_KERNEL);
++		BUG_ON(!energy);
++
++		energy->idle_states = (struct idle_state *)
++				      ((void *)&energy->cap_states +
++				       sizeof(energy->cap_states));
++
++		energy->cap_states = (struct capacity_state *)
++				     ((void *)&energy->cap_states +
++				      sizeof(energy->cap_states) +
++				      fn(cpu)->nr_idle_states*
++				      sizeof(struct idle_state));
++	}
++
+ 	energy->nr_idle_states = fn(cpu)->nr_idle_states;
+ 	memcpy(energy->idle_states, fn(cpu)->idle_states,
+ 	       energy->nr_idle_states*sizeof(struct idle_state));
+@@ -6906,6 +6930,8 @@ static int build_sched_domains(const struct cpumask *cpu_map,
+ 			claim_allocations(i, sd);
+ 			init_sched_groups_capacity(i, sd);
+ 		}
++
++		init_sched_energy(i, NULL, tl);
+ 	}
+ 
+ 	/* Attach the domains */
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 7325668..7d3f961 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -800,6 +800,8 @@ struct sched_group_capacity {
+ 	unsigned long cpumask[0]; /* iteration mask */
+ };
+ 
++extern struct sched_group_energy *sse;
++
+ struct sched_group {
+ 	struct sched_group *next;	/* Must be a circular list */
+ 	atomic_t ref;
+-- 
+1.9.1
+

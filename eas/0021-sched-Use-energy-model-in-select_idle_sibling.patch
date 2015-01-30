@@ -1,0 +1,99 @@
+From 10af5e6d38472faf6062bb76e794584d75fbd2f7 Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Thu, 3 Jul 2014 16:26:08 +0800
+Subject: [PATCH 21/23] sched: Use energy model in select_idle_sibling
+
+Make select_idle_sibling() consider energy when picking an idle cpu.
+This implies having to look beyond sd_llc. Otherwise, consolidating
+short frequently running tasks on fewer llc domains will not happen when
+that is feasible. The fix is to start select_idle_sibling() at the
+highest sched_domain level. A more refined approach causing less
+overhead will be considered later. That could be to only look beyond
+sd_llc occasionally.
+
+Only idle cpus are still considered. A more aggressive energy conserving
+approach could go further and consider partially utilized cpus.
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ kernel/sched/fair.c | 41 +++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 37 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 7fe504e..627de2f 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -5003,9 +5003,19 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
+  */
+ static int select_idle_sibling(struct task_struct *p, int target)
+ {
+-	struct sched_domain *sd;
++	struct sched_domain *sd = NULL, *tmp;
+ 	struct sched_group *sg;
+ 	int i = task_cpu(p);
++	int target_nrg;
++	int nrg_min, nrg_cpu = -1;
++
++	if (energy_aware()) {
++		/* When energy-aware, go above sd_llc */
++		for_each_domain(target, tmp)
++			sd = tmp;
++
++		goto loop;
++	}
+ 
+ 	if (idle_cpu(target))
+ 		return target;
+@@ -5020,6 +5030,10 @@ static int select_idle_sibling(struct task_struct *p, int target)
+ 	 * Otherwise, iterate the domains and find an elegible idle cpu.
+ 	 */
+ 	sd = rcu_dereference(per_cpu(sd_llc, target));
++
++loop:
++	target_nrg = nrg_min = energy_diff_task(target, p);
++
+ 	for_each_lower_domain(sd) {
+ 		sg = sd->groups;
+ 		do {
+@@ -5028,16 +5042,35 @@ static int select_idle_sibling(struct task_struct *p, int target)
+ 				goto next;
+ 
+ 			for_each_cpu(i, sched_group_cpus(sg)) {
++				int nrg_diff;
++				if (energy_aware()) {
++					if (!idle_cpu(i))
++						continue;
++
++					nrg_diff = energy_diff_task(i, p);
++					if (nrg_diff < nrg_min) {
++						nrg_min = nrg_diff;
++						nrg_cpu = i;
++					}
++				}
++
+ 				if (i == target || !idle_cpu(i))
+ 					goto next;
+ 			}
+ 
+-			target = cpumask_first_and(sched_group_cpus(sg),
+-					tsk_cpus_allowed(p));
+-			goto done;
++			if (!energy_aware()) {
++				target = cpumask_first_and(sched_group_cpus(sg),
++						tsk_cpus_allowed(p));
++				goto done;
++			}
+ next:
+ 			sg = sg->next;
+ 		} while (sg != sd->groups);
++
++		if (nrg_cpu >= 0) {
++			target = nrg_cpu;
++			goto done;
++		}
+ 	}
+ done:
+ 	return target;
+-- 
+1.9.1
+

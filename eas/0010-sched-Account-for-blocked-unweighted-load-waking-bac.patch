@@ -1,0 +1,72 @@
+From 00bf8dde0c407d477ccf2a257aa3433379effe72 Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Thu, 3 Jul 2014 16:25:57 +0800
+Subject: [PATCH 10/23] sched: Account for blocked unweighted load waking back
+ up
+
+Migrate unweighted blocked load of an entity away from the run queue
+in case it is migrated to another cpu during wake-up.
+
+This patch is the unweighted counterpart of "sched: Account for blocked
+load waking back up" (commit id aff3e4988444).
+
+Note: The unweighted blocked load is not used for energy aware
+scheduling yet.
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c  | 9 +++++++--
+ kernel/sched/sched.h | 2 +-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 41730a2..acbed3e 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2781,9 +2781,11 @@ static void update_cfs_rq_blocked_load(struct cfs_rq *cfs_rq, int force_update)
+ 		return;
+ 
+ 	if (atomic_long_read(&cfs_rq->removed_load)) {
+-		unsigned long removed_load;
++		unsigned long removed_load, uw_removed_load;
+ 		removed_load = atomic_long_xchg(&cfs_rq->removed_load, 0);
+-		subtract_blocked_load_contrib(cfs_rq, removed_load, 0);
++		uw_removed_load = atomic_long_xchg(&cfs_rq->uw_removed_load, 0);
++		subtract_blocked_load_contrib(cfs_rq, removed_load,
++					      uw_removed_load);
+ 	}
+ 
+ 	if (decays) {
+@@ -4856,6 +4858,8 @@ migrate_task_rq_fair(struct task_struct *p, int next_cpu)
+ 		se->avg.decay_count = -__synchronize_entity_decay(se);
+ 		atomic_long_add(se->avg.load_avg_contrib,
+ 						&cfs_rq->removed_load);
++		atomic_long_add(se->avg.uw_load_avg_contrib,
++						&cfs_rq->uw_removed_load);
+ 	}
+ 
+ 	/* We have migrated, no longer consider this task hot */
+@@ -7914,6 +7918,7 @@ void init_cfs_rq(struct cfs_rq *cfs_rq)
+ #ifdef CONFIG_SMP
+ 	atomic64_set(&cfs_rq->decay_counter, 1);
+ 	atomic_long_set(&cfs_rq->removed_load, 0);
++	atomic_long_set(&cfs_rq->uw_removed_load, 0);
+ #endif
+ }
+ 
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 3b5b716..783db1c 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -367,7 +367,7 @@ struct cfs_rq {
+ 	unsigned long uw_runnable_load_avg, uw_blocked_load_avg;
+ 	atomic64_t decay_counter;
+ 	u64 last_decay;
+-	atomic_long_t removed_load;
++	atomic_long_t removed_load, uw_removed_load;
+ 
+ #ifdef CONFIG_FAIR_GROUP_SCHED
+ 	/* Required to track per-cpu representation of a task_group */
+-- 
+1.9.1
+
