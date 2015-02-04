@@ -1,0 +1,38 @@
+From 7a731beb02c8043045a2328035711eb206cde1c4 Mon Sep 17 00:00:00 2001
+From: Hongzhou Yang <hongzhou.yang@mediatek.com>
+Date: Tue, 27 Jan 2015 04:43:57 +0800
+Subject: [PATCH 5/9] arm64: mediatek: Add config option for mt8173.
+
+The upcoming MTK pinctrl driver have a big pin table for each SoC,
+and we don't want to bloat the kernel binary if we don't need it.
+Add config options so we can build for one SoC only.
+
+Change-Id: Ib3daf171cc2d73228aec726758a4c5f2f80bfef7
+Signed-off-by: Hongzhou Yang <hongzhou.yang@mediatek.com>
+---
+ arch/arm64/Kconfig | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index e627ead..6213dac 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -151,9 +151,15 @@ menu "Platform selection"
+ config ARCH_MEDIATEK
+ 	bool "Mediatek MT65xx & MT81xx ARMv8 SoC"
+ 	select ARM_GIC
++	select PINCTRL
+ 	help
+ 	  Support for Mediatek MT65xx & MT81xx ARMv8 SoCs
+ 
++config MACH_MT8173
++	bool "Mediatek 8173 Soc Supprt"
++	depends on ARCH_MEDIATEK
++	default y
++
+ config ARCH_SEATTLE
+ 	bool "AMD Seattle SoC Family"
+ 	help
+-- 
+1.9.1
+
