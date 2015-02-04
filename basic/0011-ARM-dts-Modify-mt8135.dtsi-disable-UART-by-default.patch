@@ -1,0 +1,66 @@
+From 17e80887b02b9e07bf7b751f7cb62447659d6474 Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Mon, 5 Jan 2015 20:57:00 +0800
+Subject: [PATCH 11/12] ARM: dts: Modify mt8135.dtsi disable UART by default
+
+Modify mt8135.dtsi to disable UART by default.
+Modify mt8135-evbp1.dts to enable uart3.
+
+Change-Id: I12f43f72652d2687d3767adb3091d3c0cbcd8cdd
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ arch/arm/boot/dts/mt8135-evbp1.dts | 4 ++++
+ arch/arm/boot/dts/mt8135.dtsi      | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/arch/arm/boot/dts/mt8135-evbp1.dts b/arch/arm/boot/dts/mt8135-evbp1.dts
+index a5adf97..3667738 100644
+--- a/arch/arm/boot/dts/mt8135-evbp1.dts
++++ b/arch/arm/boot/dts/mt8135-evbp1.dts
+@@ -23,3 +23,7 @@
+ 		reg = <0 0x80000000 0 0x40000000>;
+ 	};
+ };
++
++&uart3 {
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/mt8135.dtsi b/arch/arm/boot/dts/mt8135.dtsi
+index ec83e69..241a975 100644
+--- a/arch/arm/boot/dts/mt8135.dtsi
++++ b/arch/arm/boot/dts/mt8135.dtsi
+@@ -133,6 +133,7 @@
+ 			reg = <0 0x11006000 0 0x400>;
+ 			interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
++			status = "disabled";
+ 		};
+ 
+ 		uart1: serial@11007000 {
+@@ -140,6 +141,7 @@
+ 			reg = <0 0x11007000 0 0x400>;
+ 			interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
++			status = "disabled";
+ 		};
+ 
+ 		uart2: serial@11008000 {
+@@ -147,6 +149,7 @@
+ 			reg = <0 0x11008000 0 0x400>;
+ 			interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
++			status = "disabled";
+ 		};
+ 
+ 		uart3: serial@11009000 {
+@@ -154,6 +157,7 @@
+ 			reg = <0 0x11009000 0 0x400>;
+ 			interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
++			status = "disabled";
+ 		};
+ 	};
+ };
+-- 
+1.9.1
+

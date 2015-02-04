@@ -1,0 +1,121 @@
+From 5ed38b049d6738d27bb4475aaa8f552a62062928 Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Fri, 26 Dec 2014 14:14:31 +0800
+Subject: [PATCH 09/12] arm64: dts: Revise mt8173.dts by review comment and
+ 3.19-rc1
+
+Revise mt8173.dts accroding public review comment.
+Add interrupt include file, and replace interrupt by enum value.
+
+Change-Id: I8369fc60d7f3e2c97c1f58d1c50b633d9e0d89b6
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 33 +++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 4bbcbeb..863f9e3 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -11,6 +11,9 @@
+  * GNU General Public License for more details.
+  */
+ 
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++
+ / {
+ 	compatible = "mediatek,mt8173";
+ 	interrupt-parent = <&sysirq>;
+@@ -54,14 +57,14 @@
+ 			enable-method = "psci";
+ 		};
+ 
+-		cpu2: cpu@2 {
++		cpu2: cpu@100 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a57";
+ 			reg = <0x100>;
+ 			enable-method = "psci";
+ 		};
+ 
+-		cpu3: cpu@3 {
++		cpu3: cpu@101 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a57";
+ 			reg = <0x101>;
+@@ -75,7 +78,6 @@
+ 		cpu_suspend   = <0x84000001>;
+ 		cpu_off	      = <0x84000002>;
+ 		cpu_on	      = <0x84000003>;
+-		affinity_info = <0x84000004>;
+ 	};
+ 
+ 	uart_clk: dummy26m {
+@@ -87,10 +89,14 @@
+ 	timer {
+ 		compatible = "arm,armv8-timer";
+ 		interrupt-parent = <&gic>;
+-		interrupts = <1 13 0xf08>,
+-			     <1 14 0xf08>,
+-			     <1 11 0xf08>,
+-			     <1 10 0xf08>;
++		interrupts = <GIC_PPI 13
++			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++			     <GIC_PPI 14
++			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++			     <GIC_PPI 11
++			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++			     <GIC_PPI 10
++			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+ 	};
+ 
+ 	soc {
+@@ -113,37 +119,38 @@
+ 			interrupt-parent = <&gic>;
+ 			interrupt-controller;
+ 			reg = <0 0x10221000 0 0x1000>,
+-			      <0 0x10222000 0 0x1000>,
++			      <0 0x10222000 0 0x2000>,
+ 			      <0 0x10224000 0 0x2000>,
+ 			      <0 0x10226000 0 0x2000>;
+-			interrupts = <1 9 0xf04>;
++			interrupts = <GIC_PPI 9
++				(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+ 		};
+ 
+ 		uart0: serial@11002000 {
+ 			compatible = "mediatek,mt8173-uart","mediatek,mt6577-uart";
+ 			reg = <0 0x11002000 0 0x400>;
+-			interrupts = <0 83 8>;
++			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
+ 		};
+ 
+ 		uart1: serial@11003000 {
+ 			compatible = "mediatek,mt8173-uart","mediatek,mt6577-uart";
+ 			reg = <0 0x11003000 0 0x400>;
+-			interrupts = <0 84 8>;
++			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
+ 		};
+ 
+ 		uart2: serial@11004000 {
+ 			compatible = "mediatek,mt8173-uart","mediatek,mt6577-uart";
+ 			reg = <0 0x11004000 0 0x400>;
+-			interrupts = <0 85 8>;
++			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
+ 		};
+ 
+ 		uart3: serial@11005000 {
+ 			compatible = "mediatek,mt8173-uart","mediatek,mt6577-uart";
+ 			reg = <0 0x11005000 0 0x400>;
+-			interrupts = <0 86 8>;
++			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_LOW>;
+ 			clocks = <&uart_clk>;
+ 		};
+ 	};
+-- 
+1.9.1
+
