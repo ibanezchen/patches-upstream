@@ -1,0 +1,66 @@
+From a34060440b12f44e3515b031cea7724a276ea99a Mon Sep 17 00:00:00 2001
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Date: Tue, 20 Jan 2015 10:47:08 +0100
+Subject: [PATCH 05/11] ARM: dts: mt8135: Add pericfg, infracfg and pmic
+ wrapper nodes
+
+This adds the perisys, infracfg and pmic wrapper nodes to the
+MediaTek MT8135 dtsi file.
+
+Change-Id: I6b87325c2fe1126a1f6509657a390677ec54a640
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+---
+ arch/arm/boot/dts/mt8135.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm/boot/dts/mt8135.dtsi b/arch/arm/boot/dts/mt8135.dtsi
+index f89884a..dacfdb8 100644
+--- a/arch/arm/boot/dts/mt8135.dtsi
++++ b/arch/arm/boot/dts/mt8135.dtsi
+@@ -15,6 +15,7 @@
+ #include <dt-bindings/clock/mt8135-clk.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/reset-controller/mt8135-resets.h>
+ #include "skeleton64.dtsi"
+ #include "mt8135-pinfunc.h"
+ 
+@@ -153,6 +154,8 @@
+ 		infracfg: infracfg@10001000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
++			#reset-cells = <1>;
++			#clock-cells = <1>;
+ 			compatible = "mediatek,mt8135-infracfg";
+ 			reg = <0 0x10001000 0 0x1000>;
+ 			#clock-cells = <1>;
+@@ -161,11 +164,26 @@
+ 		pericfg: pericfg@10003000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
++			#reset-cells = <1>;
++			#clock-cells = <1>;
+ 			compatible = "mediatek,mt8135-pericfg";
+ 			reg = <0 0x10003000 0 0x1000>;
+ 			#clock-cells = <1>;
+ 		};
+ 
++		pwrap: pwrap@1000f000 {
++			compatible = "mediatek,mt8135-pwrap";
++			reg = <0 0x1000f000 0 0x1000>,
++				<0 0x11017000 0 0x1000>;
++			reg-names = "pwrap-base", "pwrap-bridge-base";
++			interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
++			resets = <&infracfg MT8135_INFRA_PMIC_WRAP_RST>,
++					<&pericfg MT8135_PERI_PWRAP_BRIDGE_SW_RST>;
++			reset-names = "pwrap", "pwrap-bridge";
++			clocks = <&clk_26m>, <&clk_26m>;
++			clock-names = "spi", "wrap";
++		};
++
+ 		timer: timer@10008000 {
+ 			compatible = "mediatek,mt8135-timer",
+ 					"mediatek,mt6577-timer";
+-- 
+1.9.1
+
