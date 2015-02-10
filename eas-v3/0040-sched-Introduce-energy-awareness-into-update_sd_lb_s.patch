@@ -1,0 +1,86 @@
+From 92b6c22db24e67a3479da18274340b670ab9fc24 Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Wed, 4 Feb 2015 18:31:17 +0800
+Subject: [PATCH 40/48] sched: Introduce energy awareness into
+ update_sd_lb_stats
+
+Energy-aware load balancing has to work alongside the conventional load
+based functionality. This includes the tipping point feature, i.e. being
+able to fall back from energy aware to the conventional load based
+functionality during an ongoing load balancing action.
+That is why this patch introduces an additional reference to hold the
+least efficient sched group (costliest) as well its statistics in form of
+an extra sg_lb_stats structure (costliest_stat).
+The function update_sd_pick_costliest is used to assign the least
+efficient sched group parallel to the existing update_sd_pick_busiest.
+
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Peter Zijlstra <peterz@infradead.org>
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index f32e5de..e85223e 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6359,12 +6359,14 @@ struct sg_lb_stats {
+  */
+ struct sd_lb_stats {
+ 	struct sched_group *busiest;	/* Busiest group in this sd */
++	struct sched_group *costliest;	/* Least efficient group in this sd */
+ 	struct sched_group *local;	/* Local group in this sd */
+ 	unsigned long total_load;	/* Total load of all groups in sd */
+ 	unsigned long total_capacity;	/* Total capacity of all groups in sd */
+ 	unsigned long avg_load;	/* Average load across all groups in sd */
+ 
+ 	struct sg_lb_stats busiest_stat;/* Statistics of the busiest group */
++	struct sg_lb_stats costliest_stat;/* Statistics of the least efficient group */
+ 	struct sg_lb_stats local_stat;	/* Statistics of the local group */
+ };
+ 
+@@ -6386,6 +6388,9 @@ static inline void init_sd_lb_stats(struct sd_lb_stats *sds)
+ 			.sum_nr_running = 0,
+ 			.group_type = group_other,
+ 		},
++		.costliest_stat = {
++			.group_eff = ULONG_MAX,
++		},
+ 	};
+ }
+ 
+@@ -6778,6 +6783,17 @@ static bool update_sd_pick_busiest(struct lb_env *env,
+ 	return false;
+ }
+ 
++static noinline bool update_sd_pick_costliest(struct sd_lb_stats *sds,
++					      struct sg_lb_stats *sgs)
++{
++	struct sg_lb_stats *costliest = &sds->costliest_stat;
++
++	if (sgs->group_eff < costliest->group_eff)
++		return true;
++
++	return false;
++}
++
+ #ifdef CONFIG_NUMA_BALANCING
+ static inline enum fbq_type fbq_classify_group(struct sg_lb_stats *sgs)
+ {
+@@ -6868,6 +6884,11 @@ static inline void update_sd_lb_stats(struct lb_env *env, struct sd_lb_stats *sd
+ 			sds->busiest_stat = *sgs;
+ 		}
+ 
++		if (env->use_ea && update_sd_pick_costliest(sds, sgs)) {
++			sds->costliest = sg;
++			sds->costliest_stat = *sgs;
++		}
++
+ next_group:
+ 		/* Now, start updating sd_lb_stats */
+ 		sds->total_load += sgs->group_load;
+-- 
+1.9.1
+

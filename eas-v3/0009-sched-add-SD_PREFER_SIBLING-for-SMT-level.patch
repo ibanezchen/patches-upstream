@@ -1,0 +1,29 @@
+From 582d08e893d07fbdd9029f59c3aaf1e5eed41fe8 Mon Sep 17 00:00:00 2001
+From: Vincent Guittot <vincent.guittot@linaro.org>
+Date: Wed, 4 Feb 2015 18:30:46 +0800
+Subject: [PATCH 09/48] sched: add SD_PREFER_SIBLING for SMT level
+
+Add the SD_PREFER_SIBLING flag for SMT level in order to ensure that
+the scheduler will put at least 1 task per core.
+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Preeti U. Murthy <preeti@linux.vnet.ibm.com>
+---
+ kernel/sched/core.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index b07531a..15ff8c0 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6236,6 +6236,7 @@ sd_init(struct sched_domain_topology_level *tl, int cpu)
+ 	 */
+ 
+ 	if (sd->flags & SD_SHARE_CPUCAPACITY) {
++		sd->flags |= SD_PREFER_SIBLING;
+ 		sd->imbalance_pct = 110;
+ 		sd->smt_gain = 1178; /* ~15% */
+ 
+-- 
+1.9.1
+

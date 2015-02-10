@@ -1,0 +1,207 @@
+
+Subject:    [RFCv3 PATCH 00/48] sched: Energy cost model for energy-aware scheduling
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: 2015-02-04 18:30:37
+
+Several techniques for saving energy through various scheduler
+modifications have been proposed in the past, however most of the
+techniques have not been universally beneficial for all use-cases and
+platforms. For example, consolidating tasks on fewer cpus is an
+effective way to save energy on some platforms, while it might make
+things worse on others.
+
+This proposal, which is inspired by the Ksummit workshop discussions in
+2013 [1], takes a different approach by using a (relatively) simple
+platform energy cost model to guide scheduling decisions. By providing
+the model with platform specific costing data the model can provide a
+estimate of the energy implications of scheduling decisions. So instead
+of blindly applying scheduling techniques that may or may not work for
+the current use-case, the scheduler can make informed energy-aware
+decisions. We believe this approach provides a methodology that can be
+adapted to any platform, including heterogeneous systems such as ARM
+big.LITTLE. The model considers cpus only, i.e. no peripherals, GPU or
+memory. Model data includes power consumption at each P-state and
+C-state.
+
+This is an RFC and there are some loose ends that have not been
+addressed here or in the code yet. The model and its infrastructure is
+in place in the scheduler and it is being used for load-balancing
+decisions. The energy model data is hardcoded, the load-balancing
+heuristics are still under development, and there are some limitations
+still to be addressed. However, the main idea is presented here, which
+is the use of an energy model for scheduling decisions.
+
+RFCv3 is a consolidation of the latest energy model related patches and
+previously posted patch sets related to capacity and utilization
+tracking [2][3] to show where we are heading. [2] and [3] have been
+rebased onto v3.19-rc7 with a few minor modifications. Large parts of
+the energy model code and use of the energy model in the scheduler has
+been rewritten and simplified. The patch set consists of three main
+parts (more details further down):
+
+Patch 1-11:  sched: consolidation of CPU capacity and usage [2] (rebase)
+
+Patch 12-19: sched: frequency and cpu invariant per-entity load-tracking
+                    and other load-tracking bits [3] (rebase)
+
+Patch 20-48: sched: Energy cost model for energy-aware scheduling (RFCv3)
+
+Test results for ARM TC2 (2xA15+3xA7) with cpufreq enabled:
+
+sysbench: Single task running for 3 seconds.
+rt-app [4]: 5 medium (~50%) periodic tasks
+rt-app [4]: 2 light (~10%) periodic tasks
+
+Average numbers for 20 runs per test.
+
+Energy		sysbench	rt-app medium	rt-app light
+Mainline	100*		100		100
+EA		279		88		63
+
+* Sensitive to task placement on big.LITTLE. Mainline may put it on
+  either cpu due to it's lack of compute capacity awareness, while EA
+  consistently puts heavy tasks on big cpus. The EA energy increase came
+  with a 2.65x _increase_ in performance (throughput).
+
+[1] http://etherpad.osuosl.org/energy-aware-scheduling-ks-2013 (search
+for 'cost')
+[2] https://lkml.org/lkml/2015/1/15/136
+[3] https://lkml.org/lkml/2014/12/2/328
+[4] https://wiki.linaro.org/WorkingGroups/PowerManagement/Resources/Tools/WorkloadGen
+
+Changes:
+
+RFCv3:
+
+'sched: Energy cost model for energy-aware scheduling' changes:
+RFCv2->RFCv3:
+
+(1) Remove frequency- and cpu-invariant load/utilization patches since
+    this is now provided by [2] and [3].
+
+(2) Remove system-wide sched_energy to make the code easier to
+    understand, i.e. single socket systems are not supported (yet).
+
+(3) Remove wake-up energy. Extra complexity that wasn't fully justified.
+    Idle-state awareness introduced recently in mainline may be
+    sufficient.
+
+(4) Remove procfs interface for energy data to make the patch-set
+    smaller.
+
+(5) Rework energy-aware load balancing code.
+
+    In RFCv2 we only attempted to pick the source cpu in an energy-aware
+    fashion. In addition to support for finding the most energy
+    inefficient source CPU during the load-balancing action, RFCv3 also
+    introduces the energy-aware based moving of tasks between cpus as
+    well as support for managing the 'tipping point' - the threshold
+    where we switch away from energy model based load balancing to
+    conventional load balancing.
+
+'sched: frequency and cpu invariant per-entity load-tracking and other
+load-tracking bits' [3]
+
+(1) Remove blocked load from load tracking.
+
+(2) Remove cpu-invariant load tracking.
+
+    Both (1) and (2) require changes to the existing load-balance code
+    which haven't been done yet. These are therefore left out until that
+    has been addressed.
+
+(3) One patch renamed.
+
+'sched: consolidation of CPU capacity and usage' [2]
+
+(1) Fixed conflict when rebasing to v3.19-rc7.
+
+(2) One patch subject changed slightly.
+
+
+RFC v2:
+ - Extended documentation:
+   - Cover the energy model in greater detail.
+   - Recipe for deriving platform energy model.
+ - Replaced Kconfig with sched feature (jump label).
+ - Add unweighted load tracking.
+ - Use unweighted load as task/cpu utilization.
+ - Support for multiple idle states per sched_group. cpuidle integration
+   still missing.
+ - Changed energy aware functionality in select_idle_sibling().
+ - Experimental energy aware load-balance support.
+
+
+Dietmar Eggemann (17):
+  sched: Make load tracking frequency scale-invariant
+  sched: Make usage tracking cpu scale-invariant
+  arm: vexpress: Add CPU clock-frequencies to TC2 device-tree
+  arm: Cpu invariant scheduler load-tracking support
+  sched: Get rid of scaling usage by cpu_capacity_orig
+  sched: Introduce energy data structures
+  sched: Allocate and initialize energy data structures
+  arm: topology: Define TC2 energy and provide it to the scheduler
+  sched: Infrastructure to query if load balancing is energy-aware
+  sched: Introduce energy awareness into update_sg_lb_stats
+  sched: Introduce energy awareness into update_sd_lb_stats
+  sched: Introduce energy awareness into find_busiest_group
+  sched: Introduce energy awareness into find_busiest_queue
+  sched: Introduce energy awareness into detach_tasks
+  sched: Tipping point from energy-aware to conventional load balancing
+  sched: Skip cpu as lb src which has one task and capacity gte the dst
+    cpu
+  sched: Turn off fast idling of cpus on a partially loaded system
+
+Morten Rasmussen (23):
+  sched: Track group sched_entity usage contributions
+  sched: Make sched entity usage tracking frequency-invariant
+  cpufreq: Architecture specific callback for frequency changes
+  arm: Frequency invariant scheduler load-tracking support
+  sched: Track blocked utilization contributions
+  sched: Include blocked utilization in usage tracking
+  sched: Documentation for scheduler energy cost model
+  sched: Make energy awareness a sched feature
+  sched: Introduce SD_SHARE_CAP_STATES sched_domain flag
+  sched: Compute cpu capacity available at current frequency
+  sched: Relocated get_cpu_usage()
+  sched: Use capacity_curr to cap utilization in get_cpu_usage()
+  sched: Highest energy aware balancing sched_domain level pointer
+  sched: Calculate energy consumption of sched_group
+  sched: Extend sched_group_energy to test load-balancing decisions
+  sched: Estimate energy impact of scheduling decisions
+  sched: Energy-aware wake-up task placement
+  sched: Bias new task wakeups towards higher capacity cpus
+  sched, cpuidle: Track cpuidle state index in the scheduler
+  sched: Count number of shallower idle-states in struct
+    sched_group_energy
+  sched: Determine the current sched_group idle-state
+  sched: Enable active migration for cpus of lower capacity
+  sched: Disable energy-unfriendly nohz kicks
+
+Vincent Guittot (8):
+  sched: add utilization_avg_contrib
+  sched: remove frequency scaling from cpu_capacity
+  sched: make scale_rt invariant with frequency
+  sched: add per rq cpu_capacity_orig
+  sched: get CPU's usage statistic
+  sched: replace capacity_factor by usage
+  sched: add SD_PREFER_SIBLING for SMT level
+  sched: move cfs task on a CPU with higher capacity
+
+ Documentation/scheduler/sched-energy.txt   | 359 +++++++++++
+ arch/arm/boot/dts/vexpress-v2p-ca15_a7.dts |   5 +
+ arch/arm/kernel/topology.c                 | 218 +++++--
+ drivers/cpufreq/cpufreq.c                  |  10 +-
+ include/linux/sched.h                      |  43 +-
+ kernel/sched/core.c                        | 119 +++-
+ kernel/sched/debug.c                       |  12 +-
+ kernel/sched/fair.c                        | 935 ++++++++++++++++++++++++-----
+ kernel/sched/features.h                    |   6 +
+ kernel/sched/idle.c                        |   2 +
+ kernel/sched/sched.h                       |  75 ++-
+ 11 files changed, 1559 insertions(+), 225 deletions(-)
+ create mode 100644 Documentation/scheduler/sched-energy.txt
+
+-- 
+1.9.1
+

@@ -1,0 +1,39 @@
+From dc1f6f6881e33d52bd2f94f5e28c0b24184df848 Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Wed, 4 Feb 2015 18:31:24 +0800
+Subject: [PATCH 47/48] sched: Enable active migration for cpus of lower
+ capacity
+
+Add an extra criteria to need_active_balance() to kick off active load
+balance if the source cpu is overutilized and has lower capacity than
+the destination cpus.
+
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Peter Zijlstra <peterz@infradead.org>
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ kernel/sched/fair.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 9beec31..e5895e9 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7375,6 +7375,13 @@ static int need_active_balance(struct lb_env *env)
+ 			return 1;
+ 	}
+ 
++	if ((capacity_of(env->src_cpu) < capacity_of(env->dst_cpu)) &&
++				env->src_rq->cfs.h_nr_running == 1 &&
++				cpu_overutilized(env->src_cpu, env->sd) &&
++				!cpu_overutilized(env->dst_cpu, env->sd)) {
++			return 1;
++	}
++
+ 	return unlikely(sd->nr_balance_failed > sd->cache_nice_tries+2);
+ }
+ 
+-- 
+1.9.1
+

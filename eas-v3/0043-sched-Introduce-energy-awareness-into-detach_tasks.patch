@@ -1,0 +1,78 @@
+From 404658d15d3ea221c74bc5eb2a744ca0516decc2 Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Wed, 4 Feb 2015 18:31:20 +0800
+Subject: [PATCH 43/48] sched: Introduce energy awareness into detach_tasks
+
+Energy-aware load balancing does not rely on env->imbalance but instead it
+evaluates the system-wide energy difference for each task on the src rq by
+potentially moving it to the dst rq. If this energy difference is lesser
+than zero the task is actually moved from src to dst rq.
+
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Peter Zijlstra <peterz@infradead.org>
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 9a5ccc3..8e218f9 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6091,12 +6091,12 @@ static int detach_tasks(struct lb_env *env)
+ {
+ 	struct list_head *tasks = &env->src_rq->cfs_tasks;
+ 	struct task_struct *p;
+-	unsigned long load;
++	unsigned long load = 0;
+ 	int detached = 0;
+ 
+ 	lockdep_assert_held(&env->src_rq->lock);
+ 
+-	if (env->imbalance <= 0)
++	if (!env->use_ea && env->imbalance <= 0)
+ 		return 0;
+ 
+ 	while (!list_empty(tasks)) {
+@@ -6117,6 +6117,20 @@ static int detach_tasks(struct lb_env *env)
+ 		if (!can_migrate_task(p, env))
+ 			goto next;
+ 
++		if (env->use_ea) {
++			struct energy_env eenv = {
++				.src_cpu = env->src_cpu,
++				.dst_cpu = env->dst_cpu,
++				.usage_delta = task_utilization(p),
++			};
++			int e_diff = energy_diff(&eenv);
++
++			if (e_diff >= 0)
++				goto next;
++
++			goto detach;
++		}
++
+ 		load = task_h_load(p);
+ 
+ 		if (sched_feat(LB_MIN) && load < 16 && !env->sd->nr_balance_failed)
+@@ -6125,6 +6139,7 @@ static int detach_tasks(struct lb_env *env)
+ 		if ((load / 2) > env->imbalance)
+ 			goto next;
+ 
++detach:
+ 		detach_task(p, env);
+ 		list_add(&p->se.group_node, &env->tasks);
+ 
+@@ -6145,7 +6160,7 @@ static int detach_tasks(struct lb_env *env)
+ 		 * We only want to steal up to the prescribed amount of
+ 		 * weighted load.
+ 		 */
+-		if (env->imbalance <= 0)
++		if (!env->use_ea && env->imbalance <= 0)
+ 			break;
+ 
+ 		continue;
+-- 
+1.9.1
+

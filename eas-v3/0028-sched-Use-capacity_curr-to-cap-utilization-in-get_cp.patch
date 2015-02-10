@@ -1,0 +1,58 @@
+From 847394a82981a80d8ad6296fd49d6f38007d7677 Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Wed, 4 Feb 2015 18:31:05 +0800
+Subject: [PATCH 28/48] sched: Use capacity_curr to cap utilization in
+ get_cpu_usage()
+
+With scale-invariant usage tracking get_cpu_usage() should never return
+a usage above the current compute capacity of the cpu (capacity_curr).
+The scaling of the utilization tracking contributions should generally
+cause the cpu utilization to saturate at capacity_curr, but it may
+temporarily exceed this value in certain situations. This patch changes
+the cap from capacity_orig to capacity_curr.
+
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Peter Zijlstra <peterz@infradead.org>
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ kernel/sched/fair.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 8229d17..0b2338a 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4578,13 +4578,13 @@ static unsigned long capacity_curr_of(int cpu)
+  * cpu_capacity).
+  * cfs.utilization_load_avg is the sum of running time of runnable tasks on a
+  * CPU. It represents the amount of utilization of a CPU in the range
+- * [0..SCHED_LOAD_SCALE].  The usage of a CPU can't be higher than the full
++ * [0..capacity_curr]. The usage of a CPU can't be higher than the current
+  * capacity of the CPU because it's about the running time on this CPU.
+- * Nevertheless, cfs.utilization_load_avg can be higher than SCHED_LOAD_SCALE
++ * Nevertheless, cfs.utilization_load_avg can be higher than capacity_curr
+  * because of unfortunate rounding in avg_period and running_load_avg or just
+  * after migrating tasks until the average stabilizes with the new running
+  * time. So we need to check that the usage stays into the range
+- * [0..cpu_capacity_orig] and cap if necessary.
++ * [0..cpu_capacity_curr] and cap if necessary.
+  * Without capping the usage, a group could be seen as overloaded (CPU0 usage
+  * at 121% + CPU1 usage at 80%) whereas CPU1 has 20% of available capacity/
+  */
+@@ -4592,9 +4592,10 @@ static int get_cpu_usage(int cpu)
+ {
+ 	unsigned long usage = cpu_rq(cpu)->cfs.utilization_load_avg;
+ 	unsigned long blocked = cpu_rq(cpu)->cfs.utilization_blocked_avg;
++	unsigned long capacity_curr = capacity_curr_of(cpu);
+ 
+-	if (usage + blocked >= SCHED_LOAD_SCALE)
+-		return capacity_orig_of(cpu);
++	if (usage + blocked >= capacity_curr)
++		return capacity_curr;
+ 
+ 	return usage + blocked;
+ }
+-- 
+1.9.1
+

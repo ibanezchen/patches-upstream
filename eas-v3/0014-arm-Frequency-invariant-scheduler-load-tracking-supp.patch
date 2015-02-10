@@ -1,0 +1,68 @@
+From 7637edc9331cf3dbabe82d01962bbf01adb78e6b Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <Morten.Rasmussen@arm.com>
+Date: Wed, 4 Feb 2015 18:30:51 +0800
+Subject: [PATCH 14/48] arm: Frequency invariant scheduler load-tracking
+ support
+
+Implements arch-specific function to provide the scheduler with a
+frequency scaling correction factor for more accurate load-tracking. The
+factor is:
+
+	current_freq(cpu) * SCHED_CAPACITY_SCALE / max_freq(cpu)
+
+This implementation only provides frequency invariance. No
+micro-architecture invariance yet.
+
+Cc: Russell King <linux@arm.linux.org.uk>
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+---
+ arch/arm/kernel/topology.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/arch/arm/kernel/topology.c b/arch/arm/kernel/topology.c
+index 08b7847..a1274e6 100644
+--- a/arch/arm/kernel/topology.c
++++ b/arch/arm/kernel/topology.c
+@@ -169,6 +169,39 @@ static void update_cpu_capacity(unsigned int cpu)
+ 		cpu, arch_scale_cpu_capacity(NULL, cpu));
+ }
+ 
++/*
++ * Scheduler load-tracking scale-invariance
++ *
++ * Provides the scheduler with a scale-invariance correction factor that
++ * compensates for frequency scaling.
++ */
++
++static DEFINE_PER_CPU(atomic_long_t, cpu_curr_freq);
++static DEFINE_PER_CPU(atomic_long_t, cpu_max_freq);
++
++/* cpufreq callback function setting current cpu frequency */
++void arch_scale_set_curr_freq(int cpu, unsigned long freq)
++{
++	atomic_long_set(&per_cpu(cpu_curr_freq, cpu), freq);
++}
++
++/* cpufreq callback function setting max cpu frequency */
++void arch_scale_set_max_freq(int cpu, unsigned long freq)
++{
++	atomic_long_set(&per_cpu(cpu_max_freq, cpu), freq);
++}
++
++unsigned long arch_scale_freq_capacity(struct sched_domain *sd, int cpu)
++{
++	unsigned long curr = atomic_long_read(&per_cpu(cpu_curr_freq, cpu));
++	unsigned long max = atomic_long_read(&per_cpu(cpu_max_freq, cpu));
++
++	if (!curr || !max)
++		return SCHED_CAPACITY_SCALE;
++
++	return (curr * SCHED_CAPACITY_SCALE) / max;
++}
++
+ #else
+ static inline void parse_dt_topology(void) {}
+ static inline void update_cpu_capacity(unsigned int cpuid) {}
+-- 
+1.9.1
+

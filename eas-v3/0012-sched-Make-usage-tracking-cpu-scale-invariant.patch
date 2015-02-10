@@ -1,0 +1,93 @@
+From 40eb86c7efc7f21db603b0ef9e7a068dc691c187 Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Wed, 4 Feb 2015 18:30:49 +0800
+Subject: [PATCH 12/48] sched: Make usage tracking cpu scale-invariant
+
+Besides the existing frequency scale-invariance correction factor, apply
+cpu scale-invariance correction factor to usage tracking.
+
+Cpu scale-invariance takes cpu performance deviations due to
+micro-architectural differences (i.e. instructions per seconds) between
+cpus in HMP systems (e.g. big.LITTLE) and differences in the frequency
+value of the highest OPP between cpus in SMP systems into consideration.
+
+Each segment of the sched_avg::running_avg_sum geometric series is now
+scaled by the cpu performance factor too so the
+sched_avg::utilization_avg_contrib of each entity will be invariant from
+the particular cpu of the HMP/SMP system it is gathered on.
+
+So the usage level that is returned by get_cpu_usage stays relative to
+the max cpu performance of the system.
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 247dd91..7ac8b29 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2473,6 +2473,7 @@ static u32 __compute_runnable_contrib(u64 n)
+ }
+ 
+ unsigned long __weak arch_scale_freq_capacity(struct sched_domain *sd, int cpu);
++unsigned long __weak arch_scale_cpu_capacity(struct sched_domain *sd, int cpu);
+ 
+ /*
+  * We can represent the historical contribution to runnable average as the
+@@ -2511,6 +2512,7 @@ static __always_inline int __update_entity_runnable_avg(u64 now, int cpu,
+ 	u32 runnable_contrib, scaled_runnable_contrib;
+ 	int delta_w, scaled_delta_w, decayed = 0;
+ 	unsigned long scale_freq = arch_scale_freq_capacity(NULL, cpu);
++	unsigned long scale_cpu = arch_scale_cpu_capacity(NULL, cpu);
+ 
+ 	delta = now - sa->last_runnable_update;
+ 	/*
+@@ -2547,6 +2549,10 @@ static __always_inline int __update_entity_runnable_avg(u64 now, int cpu,
+ 
+ 		if (runnable)
+ 			sa->runnable_avg_sum += scaled_delta_w;
++
++		scaled_delta_w *= scale_cpu;
++		scaled_delta_w >>= SCHED_CAPACITY_SHIFT;
++
+ 		if (running)
+ 			sa->running_avg_sum += scaled_delta_w;
+ 		sa->avg_period += delta_w;
+@@ -2571,6 +2577,10 @@ static __always_inline int __update_entity_runnable_avg(u64 now, int cpu,
+ 
+ 		if (runnable)
+ 			sa->runnable_avg_sum += scaled_runnable_contrib;
++
++		scaled_runnable_contrib *= scale_cpu;
++		scaled_runnable_contrib >>= SCHED_CAPACITY_SHIFT;
++
+ 		if (running)
+ 			sa->running_avg_sum += scaled_runnable_contrib;
+ 		sa->avg_period += runnable_contrib;
+@@ -2581,6 +2591,10 @@ static __always_inline int __update_entity_runnable_avg(u64 now, int cpu,
+ 
+ 	if (runnable)
+ 		sa->runnable_avg_sum += scaled_delta;
++
++	scaled_delta *= scale_cpu;
++	scaled_delta >>= SCHED_CAPACITY_SHIFT;
++
+ 	if (running)
+ 		sa->running_avg_sum += scaled_delta;
+ 	sa->avg_period += delta;
+@@ -6010,7 +6024,7 @@ unsigned long __weak arch_scale_freq_capacity(struct sched_domain *sd, int cpu)
+ 
+ static unsigned long default_scale_cpu_capacity(struct sched_domain *sd, int cpu)
+ {
+-	if ((sd->flags & SD_SHARE_CPUCAPACITY) && (sd->span_weight > 1))
++	if (sd && (sd->flags & SD_SHARE_CPUCAPACITY) && (sd->span_weight > 1))
+ 		return sd->smt_gain / sd->span_weight;
+ 
+ 	return SCHED_CAPACITY_SCALE;
+-- 
+1.9.1
+
