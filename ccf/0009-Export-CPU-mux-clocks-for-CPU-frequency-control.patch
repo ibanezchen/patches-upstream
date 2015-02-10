@@ -1,0 +1,108 @@
+From b6d291b66d75187efa29b16289d1647d09f75996 Mon Sep 17 00:00:00 2001
+From: "pi-cheng.chen" <pi-cheng.chen@linaro.org>
+Date: Tue, 10 Feb 2015 17:35:07 +0800
+Subject: [PATCH 08/11] Export CPU mux clocks for CPU frequency control
+
+Signed-off-by: pi-cheng.chen <pi-cheng.chen@linaro.org>
+---
+ drivers/clk/mediatek/clk-mt8173.c      | 47 ++++++++++++++++++++++++++++++++++
+ include/dt-bindings/clock/mt8173-clk.h |  4 ++-
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/clk/mediatek/clk-mt8173.c b/drivers/clk/mediatek/clk-mt8173.c
+index 516652a..d62afe6 100644
+--- a/drivers/clk/mediatek/clk-mt8173.c
++++ b/drivers/clk/mediatek/clk-mt8173.c
+@@ -194,6 +194,8 @@
+ #define infra_audio		"infra_audio"
+ #define infra_smi		"infra_smi"
+ #define infra_dbgclk		"infra_dbgclk"
++#define infra_ca53_sel		"infra_ca53_sel"
++#define infra_ca57_sel		"infra_ca57_sel"
+ 
+ /* PERI0 */
+ #define peri_nfiecc		"peri_nfiecc"
+@@ -665,6 +667,25 @@ static const char *rtc_parents[] __initconst = {
+ 		clk26m,
+ 		univpll3_d8};
+ 
++static const char *ca53_parents[] __initconst = {
++		clk26m,
++		armca7pll,
++		mainpll,
++		univpll};
++
++static const char *ca57_parents[] __initconst = {
++		clk26m,
++		armca15pll,
++		mainpll,
++		univpll};
++
++static struct mtk_mux cpu_muxes[] __initdata = {
++	MUX(INFRA_CA53SEL, infra_ca53_sel, ca53_parents, 0x0000, 0, 2,
++	    INVALID_MUX_GATE_BIT),
++	MUX(INFRA_CA57SEL, infra_ca57_sel, ca57_parents, 0x0000, 2, 2,
++	    INVALID_MUX_GATE_BIT),
++};
++
+ static struct mtk_mux top_muxes[] __initdata = {
+ 	/* CLK_CFG_0 */
+ 	MUX(TOP_AXI_SEL, axi_sel, axi_parents,
+@@ -756,6 +777,31 @@ static void __init mtk_init_clk_topckgen(void __iomem *top_base,
+ 	}
+ }
+ 
++static void __init mtk_init_clk_cpumux(void __iomem *top_base,
++		struct clk_onecell_data *clk_data)
++{
++	int i;
++	struct clk *clk;
++
++	for (i = 0; i < ARRAY_SIZE(cpu_muxes); ++i) {
++		struct mtk_mux *mux = &cpu_muxes[i];
++
++		clk = mtk_clk_register_mux(mux->name,
++			mux->parent_names, mux->num_parents,
++			top_base + mux->reg, mux->shift, mux->width,
++			mux->gate, &lock);
++
++		if (IS_ERR(clk)) {
++			pr_err("Failed to register clk %s: %ld\n",
++			       mux->name, PTR_ERR(clk));
++			continue;
++		}
++
++		if (clk_data)
++			clk_data->clks[mux->id] = clk;
++	}
++}
++
+ static struct mtk_pll plls[] __initdata = {
+ 	PLL(APMIXED_ARMCA15PLL, armca15pll, clk26m, 0x0200, 0x020c, 0x00000001,
+ 		HAVE_PLL_HP, &mt8173_arm_pll_ops),
+@@ -995,6 +1041,7 @@ static void __init mtk_infrasys_init(struct device_node *node)
+ 
+ 	mtk_init_clk_gates(base, infra_clks, ARRAY_SIZE(infra_clks),
+ 						clk_data, &lock);
++	mtk_init_clk_cpumux(base, clk_data);
+ 
+ 	r = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+ 	if (r)
+diff --git a/include/dt-bindings/clock/mt8173-clk.h b/include/dt-bindings/clock/mt8173-clk.h
+index f3f1d13..a9d682d 100644
+--- a/include/dt-bindings/clock/mt8173-clk.h
++++ b/include/dt-bindings/clock/mt8173-clk.h
+@@ -170,7 +170,9 @@
+ #define INFRA_CEC		9
+ #define INFRA_PMICSPI		10
+ #define INFRA_PMICWRAP		11
+-#define INFRA_NR_CLK		12
++#define INFRA_CA53SEL		12
++#define INFRA_CA57SEL		13
++#define INFRA_NR_CLK		14
+ 
+ /* PERI_SYS */
+ 
+-- 
+1.9.1
+

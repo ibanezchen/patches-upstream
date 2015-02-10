@@ -1,0 +1,48 @@
+From 7b5331eee6e1bc4f183ecdd52adf51b5ec0aa946 Mon Sep 17 00:00:00 2001
+From: James Ban <james.ban.opensource@diasemi.com>
+Date: Wed, 4 Feb 2015 19:17:25 +0800
+Subject: [PATCH 07/11] This is a patch for fixing unmatched of_node.
+
+Signed-off-by: James Ban <james.ban.opensource@diasemi.com>
+---
+ drivers/regulator/da9211-regulator.c | 4 ++--
+ include/linux/regulator/da9211.h     | 1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/regulator/da9211-regulator.c b/drivers/regulator/da9211-regulator.c
+index c78d210..8e6957c 100644
+--- a/drivers/regulator/da9211-regulator.c
++++ b/drivers/regulator/da9211-regulator.c
+@@ -276,7 +276,7 @@ static struct da9211_pdata *da9211_parse_regulators_dt(
+ 			continue;
+ 
+ 		pdata->init_data[n] = da9211_matches[i].init_data;
+-
++		pdata->reg_node[n] = da9211_matches[i].of_node;
+ 		n++;
+ 	}
+ 
+@@ -364,7 +364,7 @@ static int da9211_regulator_init(struct da9211 *chip)
+ 		config.dev = chip->dev;
+ 		config.driver_data = chip;
+ 		config.regmap = chip->regmap;
+-		config.of_node = chip->dev->of_node;
++		config.of_node = chip->pdata->reg_node[i];
+ 
+ 		chip->rdev[i] = devm_regulator_register(chip->dev,
+ 			&da9211_regulators[i], &config);
+diff --git a/include/linux/regulator/da9211.h b/include/linux/regulator/da9211.h
+index 5479394..d1d9d38 100644
+--- a/include/linux/regulator/da9211.h
++++ b/include/linux/regulator/da9211.h
+@@ -32,6 +32,7 @@ struct da9211_pdata {
+ 	 * 2 : 2 phase 2 buck
+ 	 */
+ 	int num_buck;
++	struct device_node *reg_node[DA9211_MAX_REGULATORS];
+ 	struct regulator_init_data *init_data[DA9211_MAX_REGULATORS];
+ };
+ #endif
+-- 
+1.9.1
+
