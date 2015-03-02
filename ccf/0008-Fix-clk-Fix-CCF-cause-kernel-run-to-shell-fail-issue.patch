@@ -1,7 +1,7 @@
-From 22cb334f0eeb4084d28dc73839bd138ce89f0912 Mon Sep 17 00:00:00 2001
+From a282292c36bcba9e4507c1eb9bda0b00ae9d0a1b Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Fri, 30 Jan 2015 16:00:17 +0800
-Subject: [PATCH 8/8] Fix: clk: Fix CCF cause kernel run to shell fail issue
+Subject: [PATCH 8/9] Fix: clk: Fix CCF cause kernel run to shell fail issue
 
 Still checking which clock be disable accidentially.
 This is a workaround solution.

@@ -1,4 +1,4 @@
-From 7985ea7f223cf85fe75fade1d8095fdd8256ab18 Mon Sep 17 00:00:00 2001
+From d590e314e438c849b24fca4c3cf7efbbc68373ee Mon Sep 17 00:00:00 2001
 From: Chaotian Jing <chaotian.jing@mediatek.com>
 Date: Tue, 13 Jan 2015 14:10:34 +0800
 Subject: [PATCH 2/5] arm64: mediatek: Add Mediatek MMC support in defconfig
@@ -12,10 +12,10 @@ Change-Id: Idb5baaa25bc1853c390fb5ff1ed8f32a683e3ced
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index f7f7576..d2304ee 100644
+index e41213c..bdfcccf 100644
 --- a/arch/arm64/configs/defconfig
 +++ b/arch/arm64/configs/defconfig
-@@ -121,6 +121,7 @@ CONFIG_MMC_ARMMMCI=y
+@@ -124,6 +124,7 @@ CONFIG_MMC_ARMMMCI=y
  CONFIG_MMC_SDHCI=y
  CONFIG_MMC_SDHCI_PLTFM=y
  CONFIG_MMC_SPI=y

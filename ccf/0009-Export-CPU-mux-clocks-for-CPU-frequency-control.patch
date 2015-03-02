@@ -1,7 +1,7 @@
-From b6d291b66d75187efa29b16289d1647d09f75996 Mon Sep 17 00:00:00 2001
+From 05ac61da7e84605980d50b5c38de97139a99d435 Mon Sep 17 00:00:00 2001
 From: "pi-cheng.chen" <pi-cheng.chen@linaro.org>
 Date: Tue, 10 Feb 2015 17:35:07 +0800
-Subject: [PATCH 08/11] Export CPU mux clocks for CPU frequency control
+Subject: [PATCH 9/9] Export CPU mux clocks for CPU frequency control
 
 Signed-off-by: pi-cheng.chen <pi-cheng.chen@linaro.org>
 ---

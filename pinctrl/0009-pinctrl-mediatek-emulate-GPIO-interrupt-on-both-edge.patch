@@ -1,4 +1,4 @@
-From 4e07c92f5bf8b42644b3b7f644e07c8035f13620 Mon Sep 17 00:00:00 2001
+From de0af80dd1bf699ee36e1d1e23b6a43e407e4e8b Mon Sep 17 00:00:00 2001
 From: Yingjoe Chen <yingjoe.chen@mediatek.com>
 Date: Thu, 18 Dec 2014 11:36:47 +0800
 Subject: [PATCH 9/9] pinctrl: mediatek: emulate GPIO interrupt on both-edges

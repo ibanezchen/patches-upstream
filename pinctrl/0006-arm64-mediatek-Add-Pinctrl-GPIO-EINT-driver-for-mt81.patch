@@ -1,4 +1,4 @@
-From 7ef59a1a341f1a4038070305bebfcc987395d93b Mon Sep 17 00:00:00 2001
+From 0a8486572ee0b7d06e44de74c92421a9f085fd3e Mon Sep 17 00:00:00 2001
 From: Hongzhou Yang <hongzhou.yang@mediatek.com>
 Date: Mon, 26 Jan 2015 17:22:21 +0800
 Subject: [PATCH 6/9] arm64: mediatek: Add Pinctrl/GPIO/EINT driver for mt8173.
@@ -10,16 +10,31 @@ so adding this support to common code.
 Change-Id: Id145892bf66dd3640ffd936d95706c9f3acf4c67
 Signed-off-by: Hongzhou Yang <hongzhou.yang@mediatek.com>
 ---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi      |    3 +-
  drivers/pinctrl/mediatek/Kconfig              |    4 +
  drivers/pinctrl/mediatek/Makefile             |    1 +
  drivers/pinctrl/mediatek/pinctrl-mt8173.c     |  452 +++++++++
  drivers/pinctrl/mediatek/pinctrl-mtk-common.c |   14 +
  drivers/pinctrl/mediatek/pinctrl-mtk-common.h |    7 +
  drivers/pinctrl/mediatek/pinctrl-mtk-mt8173.h | 1226 +++++++++++++++++++++++++
- 6 files changed, 1704 insertions(+)
+ 7 files changed, 1705 insertions(+), 2 deletions(-)
  create mode 100644 drivers/pinctrl/mediatek/pinctrl-mt8173.c
  create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt8173.h
 
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 8554ec3..572050c 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -106,8 +106,7 @@
+ 		ranges;
+ 
+ 		sysirq: intpol-controller@10200620 {
+-			compatible = "mediatek,mt8173-sysirq",
+-					"mediatek,mt6577-sysirq";
++			compatible = "mediatek,mt8173-sysirq", "mediatek,mt6577-sysirq";
+ 			interrupt-controller;
+ 			#interrupt-cells = <3>;
+ 			interrupt-parent = <&gic>;
 diff --git a/drivers/pinctrl/mediatek/Kconfig b/drivers/pinctrl/mediatek/Kconfig
 index 70bbf39..49b8649 100644
 --- a/drivers/pinctrl/mediatek/Kconfig

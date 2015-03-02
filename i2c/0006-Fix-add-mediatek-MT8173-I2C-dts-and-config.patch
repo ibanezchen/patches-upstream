@@ -1,26 +1,25 @@
-From 4cfb7e589c511527f3f91d967f32f22651643444 Mon Sep 17 00:00:00 2001
+From c2512de3985e89da275656ee62766f081b0a2282 Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Wed, 4 Feb 2015 15:24:23 +0800
-Subject: [PATCH 06/11] Fix: add mediatek MT8173 I2C dts and config
+Subject: [PATCH 6/6] Fix: add mediatek MT8173 I2C dts and config
 
 Add dts and config to enable MT8173 I2C
 
 Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
 ---
- arch/arm64/boot/dts/mediatek/mt8173-evb.dts |  68 ++++++++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8173-evb.dts |  67 +++++++++++++++++
  arch/arm64/boot/dts/mediatek/mt8173.dtsi    | 108 ++++++++++++++++++++++++++++
  arch/arm64/configs/defconfig                |   2 +
- 3 files changed, 178 insertions(+)
+ 3 files changed, 177 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-index 7a98fcd..b92bede 100644
+index f39d26c..536de57 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-@@ -349,3 +349,71 @@
- 	core-power-supply = <&mt6397_vmch_reg>;
+@@ -354,3 +354,70 @@
  	io-power-supply = <&mt6397_vmc_reg>;
  };
-+
+ 
 +&i2c0 {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&i2c0_pins_a>;
@@ -89,7 +88,7 @@ index 7a98fcd..b92bede 100644
 +	clock-frequency = <100000>;
 +};
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 8a1a14c..dd0a445 100644
+index 7259e10..d73bc89 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 @@ -145,6 +145,54 @@
@@ -147,8 +146,8 @@ index 8a1a14c..dd0a445 100644
  		};
  
  		topckgen: topckgen@10000000 {
-@@ -205,6 +253,66 @@
- 				(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+@@ -153,6 +201,66 @@
+ 			#clock-cells = <1>;
  		};
  
 +		i2c0: i2c@11007000 {
@@ -211,14 +210,14 @@ index 8a1a14c..dd0a445 100644
 +			clock-names = "main", "dma";
 +		};
 +
- 		uart0: serial@11002000 {
- 			compatible = "mediatek,mt8173-uart","mediatek,mt6577-uart";
- 			reg = <0 0x11002000 0 0x400>;
+ 		infracfg: infracfg@10001000 {
+ 			compatible = "mediatek,mt8173-infracfg";
+ 			reg = <0 0x10001000 0 0x1000>;
 diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index d2304ee..06fd1b8 100644
+index bdfcccf..72365e3 100644
 --- a/arch/arm64/configs/defconfig
 +++ b/arch/arm64/configs/defconfig
-@@ -93,6 +93,8 @@ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+@@ -96,6 +96,8 @@ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
  CONFIG_SERIAL_OF_PLATFORM=y
  CONFIG_VIRTIO_CONSOLE=y
  # CONFIG_HW_RANDOM is not set

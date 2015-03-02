@@ -1,7 +1,7 @@
-From 5d1919de7938b5e3c3c4fa0c122ffdde8e927215 Mon Sep 17 00:00:00 2001
+From b472fbb16f71f3187709520e77d4e308ec606007 Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Thu, 4 Dec 2014 13:50:33 +0800
-Subject: [PATCH 3/8] clk: mediatek: Add basic clocks for Mediatek MT8135.
+Subject: [PATCH 3/9] clk: mediatek: Add basic clocks for Mediatek MT8135.
 
 This patch adds basic clocks for MT8135, including TOPCKGEN, PLLs,
 INFRA and PERI clocks.

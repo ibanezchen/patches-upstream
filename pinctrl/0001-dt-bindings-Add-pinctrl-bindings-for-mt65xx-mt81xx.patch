@@ -1,4 +1,4 @@
-From c60adffe124274524ed3b8b51e040be399387415 Mon Sep 17 00:00:00 2001
+From 1d4b31895704ce610c69d7e6fdb66bca9e34c7d0 Mon Sep 17 00:00:00 2001
 From: Hongzhou Yang <hongzhou.yang@mediatek.com>
 Date: Fri, 19 Sep 2014 10:28:38 +0800
 Subject: [PATCH 1/9] dt-bindings: Add pinctrl bindings for mt65xx/mt81xx.

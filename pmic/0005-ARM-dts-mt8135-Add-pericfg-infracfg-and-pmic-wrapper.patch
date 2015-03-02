@@ -1,7 +1,7 @@
-From a34060440b12f44e3515b031cea7724a276ea99a Mon Sep 17 00:00:00 2001
+From 4665eef30c6cf8e9b941dbdc44e639e7097459ff Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Tue, 20 Jan 2015 10:47:08 +0100
-Subject: [PATCH 05/11] ARM: dts: mt8135: Add pericfg, infracfg and pmic
+Subject: [PATCH 05/10] ARM: dts: mt8135: Add pericfg, infracfg and pmic
  wrapper nodes
 
 This adds the perisys, infracfg and pmic wrapper nodes to the
@@ -14,7 +14,7 @@ Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
  1 file changed, 18 insertions(+)
 
 diff --git a/arch/arm/boot/dts/mt8135.dtsi b/arch/arm/boot/dts/mt8135.dtsi
-index f89884a..dacfdb8 100644
+index 163f380..4ae2572 100644
 --- a/arch/arm/boot/dts/mt8135.dtsi
 +++ b/arch/arm/boot/dts/mt8135.dtsi
 @@ -15,6 +15,7 @@
@@ -25,7 +25,7 @@ index f89884a..dacfdb8 100644
  #include "skeleton64.dtsi"
  #include "mt8135-pinfunc.h"
  
-@@ -153,6 +154,8 @@
+@@ -154,6 +155,8 @@
  		infracfg: infracfg@10001000 {
  			#address-cells = <1>;
  			#size-cells = <1>;
@@ -34,7 +34,7 @@ index f89884a..dacfdb8 100644
  			compatible = "mediatek,mt8135-infracfg";
  			reg = <0 0x10001000 0 0x1000>;
  			#clock-cells = <1>;
-@@ -161,11 +164,26 @@
+@@ -162,11 +165,26 @@
  		pericfg: pericfg@10003000 {
  			#address-cells = <1>;
  			#size-cells = <1>;

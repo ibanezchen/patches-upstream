@@ -1,7 +1,7 @@
-From 00b465372bca97b674de6f2f9dc2b1eae731bdc7 Mon Sep 17 00:00:00 2001
+From 07cd811f955b5eb63eb4531dc9833c2702e541bc Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Fri, 30 Jan 2015 18:19:29 +0800
-Subject: [PATCH 09/11] dts: Add MT8173 pwrapper and regulator support
+Subject: [PATCH 08/10] dts: Add MT8173 pwrapper and regulator support
 
 Add MT8173 pwrapper and regulator device node.
 
@@ -13,12 +13,12 @@ Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
  2 files changed, 219 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-index b8b2621..9ff1582 100644
+index 43d5401..080571e 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-@@ -32,3 +32,206 @@
- 
- 	chosen { };
+@@ -36,3 +36,206 @@
+ &uart0 {
+ 	status = "okay";
  };
 +
 +&pwrap {
@@ -224,7 +224,7 @@ index b8b2621..9ff1582 100644
 +};
 +
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 852b65a..3b3cf61 100644
+index a169a21..c3be0a4 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 @@ -13,6 +13,7 @@

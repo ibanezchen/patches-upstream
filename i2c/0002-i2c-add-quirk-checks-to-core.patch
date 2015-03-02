@@ -1,7 +1,7 @@
-From 9c2ba208fe87f7bd6eb22c7a95393d4d1136f2ea Mon Sep 17 00:00:00 2001
+From fc13aca81cf6d0a464400c79f2fc94a08a1cecbe Mon Sep 17 00:00:00 2001
 From: Wolfram Sang <wsa@the-dreams.de>
 Date: Fri, 9 Jan 2015 18:21:32 +0100
-Subject: [PATCH 02/11] i2c: add quirk checks to core
+Subject: [PATCH 2/6] i2c: add quirk checks to core
 
 Let the core do the checks if HW quirks prevent a transfer. Saves code
 from drivers and adds consistency.
@@ -12,10 +12,10 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
  1 file changed, 53 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 39d25a8..9a6739d 100644
+index 210cf48..2ba347b 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -2063,6 +2063,56 @@ module_exit(i2c_exit);
+@@ -1929,6 +1929,56 @@ module_exit(i2c_exit);
   * ----------------------------------------------------
   */
  
@@ -72,7 +72,7 @@ index 39d25a8..9a6739d 100644
  /**
   * __i2c_transfer - unlocked flavor of i2c_transfer
   * @adap: Handle to I2C bus
-@@ -2080,6 +2130,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+@@ -1946,6 +1996,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
  	unsigned long orig_jiffies;
  	int ret, try;
  

@@ -1,4 +1,4 @@
-From 205bf6183a7769f5794fa7b1156a03ecc1c2fd91 Mon Sep 17 00:00:00 2001
+From 6cef629c0d2fb340684dc2992bbb1f36437f7fdd Mon Sep 17 00:00:00 2001
 From: Hongzhou Yang <hongzhou.yang@mediatek.com>
 Date: Fri, 24 Oct 2014 16:40:39 +0800
 Subject: [PATCH 4/9] ARM: dts: mt8135: Add pinctrl/GPIO/EINT node for mt8135.
@@ -1322,7 +1322,7 @@ index 0000000..5a60987
 +
 +#endif /* __DTS_MT8135_PINFUNC_H */
 diff --git a/arch/arm/boot/dts/mt8135.dtsi b/arch/arm/boot/dts/mt8135.dtsi
-index 241a975..2012811 100644
+index a161e99..a069afd 100644
 --- a/arch/arm/boot/dts/mt8135.dtsi
 +++ b/arch/arm/boot/dts/mt8135.dtsi
 @@ -15,6 +15,7 @@
@@ -1333,7 +1333,7 @@ index 241a975..2012811 100644
  
  / {
  	compatible = "mediatek,mt8135";
-@@ -100,6 +101,30 @@
+@@ -101,6 +102,30 @@
  		compatible = "simple-bus";
  		ranges;
  

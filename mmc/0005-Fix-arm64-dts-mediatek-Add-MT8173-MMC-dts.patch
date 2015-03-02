@@ -1,4 +1,4 @@
-From 7052a12f7e48da510c545446f4b69fa0422b6c49 Mon Sep 17 00:00:00 2001
+From 3c16f2428bf83b1c82a7411cbe0285c9081fbb74 Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Mon, 2 Feb 2015 19:38:08 +0800
 Subject: [PATCH 5/5] Fix: arm64: dts: mediatek: Add MT8173 MMC dts
@@ -11,14 +11,14 @@ Change-Id: I5104e987443e20f4fa97c0deeb1a62a1650aac07
 Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
 ---
  arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 16 ++++++++--------
- arch/arm64/boot/dts/mediatek/mt8173.dtsi    |  4 ++--
- 2 files changed, 10 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi    |  8 ++++----
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-index 2050011..7a98fcd 100644
+index 5605de8..f39d26c 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-@@ -238,7 +238,7 @@
+@@ -242,7 +242,7 @@
  &pio {
  	mmc0_pins_default: mmc0default {
  		pins_cmd_dat {
@@ -27,7 +27,7 @@ index 2050011..7a98fcd 100644
  				<MT8173_PIN_63_MSDC0_DAT6__FUNC_MSDC0_DAT6>,
  				<MT8173_PIN_62_MSDC0_DAT5__FUNC_MSDC0_DAT5>,
  				<MT8173_PIN_61_MSDC0_DAT4__FUNC_MSDC0_DAT4>,
-@@ -251,14 +251,14 @@
+@@ -255,14 +255,14 @@
  				bias-pull-up;
  		};
  		pins_clk {
@@ -44,7 +44,7 @@ index 2050011..7a98fcd 100644
  			     <MT8173_PIN_74_MSDC1_DAT1__FUNC_MSDC1_DAT1>,
  			     <MT8173_PIN_78_MSDC1_CMD__FUNC_MSDC1_CMD>,
  			     <MT8173_PIN_75_MSDC1_DAT2__FUNC_MSDC1_DAT2>,
-@@ -269,20 +269,20 @@
+@@ -273,20 +273,20 @@
  		};
  
  		pins_clk {
@@ -68,7 +68,7 @@ index 2050011..7a98fcd 100644
  			     <MT8173_PIN_63_MSDC0_DAT6__FUNC_MSDC0_DAT6>,
  			     <MT8173_PIN_62_MSDC0_DAT5__FUNC_MSDC0_DAT5>,
  			     <MT8173_PIN_61_MSDC0_DAT4__FUNC_MSDC0_DAT4>,
-@@ -306,7 +306,7 @@
+@@ -310,7 +310,7 @@
  
  	mmc1_pins_uhs: mmc1@0 {
  		pins_cmd_dat {
@@ -77,7 +77,7 @@ index 2050011..7a98fcd 100644
  			     <MT8173_PIN_74_MSDC1_DAT1__FUNC_MSDC1_DAT1>,
  			     <MT8173_PIN_78_MSDC1_CMD__FUNC_MSDC1_CMD>,
  			     <MT8173_PIN_75_MSDC1_DAT2__FUNC_MSDC1_DAT2>,
-@@ -317,7 +317,7 @@
+@@ -321,7 +321,7 @@
  		};
  
  		pins_clk {
@@ -87,10 +87,16 @@ index 2050011..7a98fcd 100644
  			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
  		};
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 4c914f6..8a1a14c 100644
+index 32351c3..7259e10 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -237,7 +237,7 @@
+@@ -240,12 +240,12 @@
+ 			clocks = <&uart_clk>;
+ 			status = "disabled";
+ 		};
+-		
++
+ 		mmc0: mmc@11230000 {
  			compatible = "mediatek,mt8173-mmc","mediatek,mt8135-mmc";
  			reg = <0 0x11230000 0 0x108>;
  			interrupts = <0 71 IRQ_TYPE_LEVEL_LOW>;
@@ -99,7 +105,7 @@ index 4c914f6..8a1a14c 100644
  			clock-names = "source";
  			status = "disabled";
  		};
-@@ -246,7 +246,7 @@
+@@ -254,10 +254,10 @@
  			compatible = "mediatek,mt8173-mmc","mediatek,mt8135-mmc";
  			reg = <0 0x11240000 0 0x108>;
  			interrupts = <0 72 IRQ_TYPE_LEVEL_LOW>;
@@ -107,7 +113,11 @@ index 4c914f6..8a1a14c 100644
 +			clocks = <&pericfg PERI_MSDC30_1>;
  			clock-names = "source";
  			status = "disabled";
- 		};
+-		};	
++		};
+ 	};
+ 
+ };
 -- 
 1.9.1
 

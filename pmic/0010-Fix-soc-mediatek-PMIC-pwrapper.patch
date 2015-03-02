@@ -1,7 +1,7 @@
-From 465bd968c78bf798e9eeb6534c5e0f967df8e407 Mon Sep 17 00:00:00 2001
+From 54fcbaa55006237eccf703e514a245b9650a7bca Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Fri, 30 Jan 2015 18:21:39 +0800
-Subject: [PATCH 11/11] Fix: soc: mediatek: PMIC pwrapper
+Subject: [PATCH 10/10] Fix: soc: mediatek: PMIC pwrapper
 
 Fix pwrapper error that base address name not align with device tree.
 

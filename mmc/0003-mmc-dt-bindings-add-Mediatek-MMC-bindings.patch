@@ -1,4 +1,4 @@
-From c1ba57a871ef77ded6b6e49680120ad6d3077a4b Mon Sep 17 00:00:00 2001
+From a4891dd72f639a536030a8901323f1e9201d3ca0 Mon Sep 17 00:00:00 2001
 From: Chaotian Jing <chaotian.jing@mediatek.com>
 Date: Thu, 15 Jan 2015 16:20:00 +0800
 Subject: [PATCH 3/5] mmc: dt-bindings: add Mediatek MMC bindings

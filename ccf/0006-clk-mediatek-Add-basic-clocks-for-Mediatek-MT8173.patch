@@ -1,7 +1,7 @@
-From dc6e755cc84e900fc44fe0ff86bf977cdf5bac36 Mon Sep 17 00:00:00 2001
+From e5b51986b3e5a554e08054dde539590f2007febb Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Mon, 5 Jan 2015 15:55:23 +0800
-Subject: [PATCH 6/8] clk: mediatek: Add basic clocks for Mediatek MT8173.
+Subject: [PATCH 6/9] clk: mediatek: Add basic clocks for Mediatek MT8173.
 
 This patch adds basic clocks for MT8173, including TOPCKGEN, PLLs,
 INFRA and PERI clocks.

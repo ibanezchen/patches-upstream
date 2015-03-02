@@ -1,4 +1,4 @@
-From 6f02c1a04db379995fa1e811eb0171244b56874c Mon Sep 17 00:00:00 2001
+From 2ca3d23d21c0884f745102e0c327857301530731 Mon Sep 17 00:00:00 2001
 From: Maoguang Meng <maoguang.meng@mediatek.com>
 Date: Sun, 16 Nov 2014 02:13:29 +0800
 Subject: [PATCH 3/9] ARM: mediatek: Add EINT support to MTK pinctrl driver.

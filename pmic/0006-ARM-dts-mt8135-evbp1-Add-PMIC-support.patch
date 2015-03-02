@@ -1,7 +1,7 @@
-From 849ca8d7d32f07e3573e2f287a07e94ca3c4ef18 Mon Sep 17 00:00:00 2001
+From 29581b73cd973e0a52b067a510a3090a921d3615 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Tue, 20 Jan 2015 10:47:09 +0100
-Subject: [PATCH 06/11] ARM: dts: mt8135-evbp1: Add PMIC support
+Subject: [PATCH 06/10] ARM: dts: mt8135-evbp1: Add PMIC support
 
 The MT8135 eval board contains a MT6397 PMIC. This adds the
 corresponding device node to the dts file.

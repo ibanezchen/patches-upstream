@@ -1,4 +1,4 @@
-From 2b0b357911891f23ce68bd9f882a0ebe26640bce Mon Sep 17 00:00:00 2001
+From 4a5bc54ce2dcaaea8f8576d0b8f5cfbb3b603ecb Mon Sep 17 00:00:00 2001
 From: Hongzhou Yang <hongzhou.yang@mediatek.com>
 Date: Mon, 26 Jan 2015 17:27:31 +0800
 Subject: [PATCH 7/9] arm64: dts: mt8173: Add pinctrl/GPIO/EINT node for
@@ -703,7 +703,7 @@ index 0000000..d2f3809
 +
 +#endif /* __DTS_MT8173_PINFUNC_H */
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 863f9e3..4d6c1a5 100644
+index 572050c..3d195c4 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 @@ -13,6 +13,7 @@

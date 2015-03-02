@@ -1,0 +1,43 @@
+From d1a5b8cb28e51e182d2397254456e8e77506f1e6 Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Fri, 30 Jan 2015 18:20:35 +0800
+Subject: [PATCH 09/10] config: Enable MT8173 reset, pwrapper and MT6397 MFD
+
+Enable MT8173 reset, pwrapper and MT6397 MFD
+
+Change-Id: Ib20db2571b5dd2d0250261cd3a660ef861073ff0
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ arch/arm64/configs/defconfig | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index be1f12a..e41213c 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -101,8 +101,10 @@ CONFIG_SPI_PL022=y
+ CONFIG_GPIO_PL061=y
+ CONFIG_GPIO_XGENE=y
+ # CONFIG_HWMON is not set
++CONFIG_MFD_MT6397=y
+ CONFIG_REGULATOR=y
+ CONFIG_REGULATOR_FIXED_VOLTAGE=y
++CONFIG_REGULATOR_MT6397=y
+ CONFIG_FB=y
+ CONFIG_FB_ARMCLCD=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+@@ -127,7 +129,11 @@ CONFIG_RTC_DRV_EFI=y
+ CONFIG_RTC_DRV_XGENE=y
+ CONFIG_VIRTIO_BALLOON=y
+ CONFIG_VIRTIO_MMIO=y
++CONFIG_MTK_INFRACFG=y
++CONFIG_MTK_PERICFG=y
++CONFIG_MTK_PMIC_WRAP=y
+ # CONFIG_IOMMU_SUPPORT is not set
++CONFIG_RESET_CONTROLLER=y
+ CONFIG_PHY_XGENE=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT3_FS=y
+-- 
+1.9.1
+

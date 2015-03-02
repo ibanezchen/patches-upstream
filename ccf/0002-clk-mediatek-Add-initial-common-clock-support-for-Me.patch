@@ -1,7 +1,7 @@
-From 048d16e25888883e3e31c6970168ce33810d4f2c Mon Sep 17 00:00:00 2001
+From 99a81851e0f19dac2356c2963b6b21b2aacbc926 Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Thu, 4 Dec 2014 13:48:08 +0800
-Subject: [PATCH 2/8] clk: mediatek: Add initial common clock support for
+Subject: [PATCH 2/9] clk: mediatek: Add initial common clock support for
  Mediatek SoCs.
 
 This patch adds common clock support for Mediatek SoCs, including plls,
@@ -28,10 +28,10 @@ Signed-off-by: James Liao <jamesjj.liao@mediatek.com>
  create mode 100644 drivers/clk/mediatek/clk-pll.h
 
 diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
-index d5fba5b..ce6c250 100644
+index d478ceb..6d97203 100644
 --- a/drivers/clk/Makefile
 +++ b/drivers/clk/Makefile
-@@ -47,6 +47,7 @@ obj-$(CONFIG_ARCH_HI3xxx)		+= hisilicon/
+@@ -49,6 +49,7 @@ obj-$(CONFIG_ARCH_HI3xxx)		+= hisilicon/
  obj-$(CONFIG_ARCH_HIP04)		+= hisilicon/
  obj-$(CONFIG_ARCH_HIX5HD2)		+= hisilicon/
  obj-$(CONFIG_COMMON_CLK_KEYSTONE)	+= keystone/

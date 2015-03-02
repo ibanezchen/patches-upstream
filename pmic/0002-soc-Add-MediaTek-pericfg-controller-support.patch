@@ -1,7 +1,7 @@
-From 230c9d091c464572bed02cf1799b4c5c9e81c331 Mon Sep 17 00:00:00 2001
+From 5b294c95da7c33f362487ead21c77e38e241a7f6 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Tue, 20 Jan 2015 10:47:05 +0100
-Subject: [PATCH 02/11] soc: Add MediaTek pericfg controller support
+Subject: [PATCH 02/10] soc: Add MediaTek pericfg controller support
 
 This adds support for the MediaTek pericfg controller found
 on the MT8135/MT8173 SoCs. The pericfg controller contains

@@ -1,7 +1,7 @@
-From be52d3673b2f66ae03f68c3d093458d7070847b8 Mon Sep 17 00:00:00 2001
+From 1dd47402fea89aafa92170f32e2bddc0069697e1 Mon Sep 17 00:00:00 2001
 From: Xudong Chen <xudong.chen@mediatek.com>
 Date: Mon, 24 Nov 2014 17:38:48 +0800
-Subject: [PATCH 04/11] I2C: mediatek: Add driver for MediaTek I2C controller
+Subject: [PATCH 4/6] I2C: mediatek: Add driver for MediaTek I2C controller
 
 The mediatek SoCs have I2C controller that handle I2C transfer.
 This patch include common I2C bus driver.
@@ -18,10 +18,10 @@ Change-Id: Icc17e326b9df46a226d536956e103f17b0382b6e
  create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 31e8308..7c76693 100644
+index 22da9c2..5795d1b 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -582,6 +582,15 @@ config I2C_MPC
+@@ -602,6 +602,15 @@ config I2C_MPC
  	  This driver can also be built as a module.  If so, the module
  	  will be called i2c-mpc.
  
@@ -38,10 +38,10 @@ index 31e8308..7c76693 100644
  	tristate "Marvell mv64xxx I2C Controller"
  	depends on MV64X60 || PLAT_ORION || ARCH_SUNXI
 diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 56388f6..59cbb4b 100644
+index 3638feb..784500d 100644
 --- a/drivers/i2c/busses/Makefile
 +++ b/drivers/i2c/busses/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+@@ -58,6 +58,7 @@ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
  obj-$(CONFIG_I2C_KEMPLD)	+= i2c-kempld.o
  obj-$(CONFIG_I2C_MESON)		+= i2c-meson.o
  obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o

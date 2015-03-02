@@ -1,7 +1,7 @@
-From 6833fc558336992cf8559fb4604d66ae8982be87 Mon Sep 17 00:00:00 2001
+From 366673369d67ec4ee1071fca51e25f2bcc9391a7 Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Wed, 4 Feb 2015 15:05:58 +0800
-Subject: [PATCH 05/11] Fix: Add MT8173 I2C support
+Subject: [PATCH 5/6] Fix: Add MT8173 I2C support
 
 Add MT8173 I2C support base on public review MT8135 version
 

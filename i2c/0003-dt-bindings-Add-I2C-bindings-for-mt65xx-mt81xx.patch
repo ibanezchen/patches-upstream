@@ -1,7 +1,7 @@
-From 7762fa0d5b06a3c45971628ece831fbb1020781b Mon Sep 17 00:00:00 2001
+From 15ce017079699b534723abd9776750682f5ecf70 Mon Sep 17 00:00:00 2001
 From: Xudong Chen <xudong.chen@mediatek.com>
 Date: Mon, 24 Nov 2014 17:38:47 +0800
-Subject: [PATCH 03/11] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+Subject: [PATCH 3/6] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
 
 Add devicetree bindings for Mediatek Soc I2C driver.
 

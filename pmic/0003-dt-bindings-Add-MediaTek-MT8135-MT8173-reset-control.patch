@@ -1,7 +1,7 @@
-From 0d32533fb5d8d161fd268934e09e1a47a2ad5378 Mon Sep 17 00:00:00 2001
+From 6adbbaae519c9982fb24fc9a6defad4e0d3c929a Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Tue, 20 Jan 2015 10:47:06 +0100
-Subject: [PATCH 03/11] dt: bindings: Add MediaTek MT8135/MT8173 reset
+Subject: [PATCH 03/10] dt: bindings: Add MediaTek MT8135/MT8173 reset
  controller defines
 
 This adds the reset defines for the MT8135/MT8173 pericfg and infracfg

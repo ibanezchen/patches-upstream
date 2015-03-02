@@ -1,7 +1,7 @@
-From 33d9ddb0a1002c49fd4a677b94f74fa0a38bf81f Mon Sep 17 00:00:00 2001
+From b65c6f2a1a5bf76d08c31a976da7281cef1f53d8 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Tue, 20 Jan 2015 10:47:04 +0100
-Subject: [PATCH 01/11] soc: Add MediaTek infracfg controller support
+Subject: [PATCH 01/10] soc: Add MediaTek infracfg controller support
 
 This adds support for the MediaTek infracfg controller found
 on the MT8135/MT8173 SoCs. The infracfg controller contains

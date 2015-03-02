@@ -1,7 +1,7 @@
-From 0fbfad24e1e9408a61d5b7db389d407c5c7fe9be Mon Sep 17 00:00:00 2001
+From 655e0f6827354e0798e4ef1a87c4d84145cfeca0 Mon Sep 17 00:00:00 2001
 From: Flora Fu <flora.fu@mediatek.com>
 Date: Tue, 20 Jan 2015 10:47:07 +0100
-Subject: [PATCH 04/11] soc: mediatek: Add PMIC wrapper for MT8135 and MT6397
+Subject: [PATCH 04/10] soc: mediatek: Add PMIC wrapper for MT8135 and MT6397
  SoC
 
 This adds support for the PMIC wrapper found on MediaTek MT8135 and

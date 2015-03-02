@@ -1,4 +1,4 @@
-From 9530ccfbc6d48b2a8d8a0a5da5692b7ee998990c Mon Sep 17 00:00:00 2001
+From b064ce4fc6ad50a020379528e2149e7d5b0f46a8 Mon Sep 17 00:00:00 2001
 From: Hongzhou Yang <hongzhou.yang@mediatek.com>
 Date: Fri, 24 Oct 2014 16:22:00 +0800
 Subject: [PATCH 2/9] ARM: mediatek: Add Pinctrl/GPIO driver for mt8135.
@@ -46,10 +46,10 @@ index f7e463c..9f59e58 100644
  	help
  	  Support for Mediatek MT65xx & MT81xx SoCs
 diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
-index d014f22..d7ce3bd 100644
+index ee9f44a..023b988 100644
 --- a/drivers/pinctrl/Kconfig
 +++ b/drivers/pinctrl/Kconfig
-@@ -202,6 +202,7 @@ source "drivers/pinctrl/sh-pfc/Kconfig"
+@@ -218,6 +218,7 @@ source "drivers/pinctrl/sh-pfc/Kconfig"
  source "drivers/pinctrl/spear/Kconfig"
  source "drivers/pinctrl/sunxi/Kconfig"
  source "drivers/pinctrl/vt8500/Kconfig"
@@ -58,10 +58,10 @@ index d014f22..d7ce3bd 100644
  config PINCTRL_XWAY
  	bool
 diff --git a/drivers/pinctrl/Makefile b/drivers/pinctrl/Makefile
-index c030b3d..bb414d9 100644
+index 0475206..f6ccdaa 100644
 --- a/drivers/pinctrl/Makefile
 +++ b/drivers/pinctrl/Makefile
-@@ -47,3 +47,4 @@ obj-$(CONFIG_PINCTRL_SH_PFC)	+= sh-pfc/
+@@ -49,3 +49,4 @@ obj-$(CONFIG_PINCTRL_SH_PFC)	+= sh-pfc/
  obj-$(CONFIG_PLAT_SPEAR)	+= spear/
  obj-$(CONFIG_ARCH_SUNXI)	+= sunxi/
  obj-$(CONFIG_ARCH_VT8500)	+= vt8500/
