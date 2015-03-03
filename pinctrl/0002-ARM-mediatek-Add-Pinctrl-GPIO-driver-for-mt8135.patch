@@ -1,7 +1,7 @@
-From b064ce4fc6ad50a020379528e2149e7d5b0f46a8 Mon Sep 17 00:00:00 2001
+From 7247105d2d33e782e1d732e2f6116419aa7b1d28 Mon Sep 17 00:00:00 2001
 From: Hongzhou Yang <hongzhou.yang@mediatek.com>
 Date: Fri, 24 Oct 2014 16:22:00 +0800
-Subject: [PATCH 2/9] ARM: mediatek: Add Pinctrl/GPIO driver for mt8135.
+Subject: [PATCH] ARM: mediatek: Add Pinctrl/GPIO driver for mt8135.
 
 The mediatek SoCs have GPIO controller that handle both the muxing and GPIOs.
 
@@ -20,11 +20,11 @@ Change-Id: I76f589914aba9cc9f911d0865baa42863490034f
  drivers/pinctrl/mediatek/Kconfig              |   14 +
  drivers/pinctrl/mediatek/Makefile             |    5 +
  drivers/pinctrl/mediatek/pinctrl-mt8135.c     |  350 ++++
- drivers/pinctrl/mediatek/pinctrl-mtk-common.c |  800 ++++++++++
+ drivers/pinctrl/mediatek/pinctrl-mtk-common.c |  801 ++++++++++
  drivers/pinctrl/mediatek/pinctrl-mtk-common.h |  185 +++
  drivers/pinctrl/mediatek/pinctrl-mtk-mt8135.h | 2114 +++++++++++++++++++++++++
  include/dt-bindings/pinctrl/mt65xx.h          |   40 +
- 10 files changed, 3511 insertions(+)
+ 10 files changed, 3512 insertions(+)
  create mode 100644 drivers/pinctrl/mediatek/Kconfig
  create mode 100644 drivers/pinctrl/mediatek/Makefile
  create mode 100644 drivers/pinctrl/mediatek/pinctrl-mt8135.c
@@ -455,10 +455,10 @@ index 0000000..13694b8
 +MODULE_AUTHOR("Hongzhou Yang <hongzhou.yang@mediatek.com>");
 diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
 new file mode 100644
-index 0000000..721f429
+index 0000000..d7aba91
 --- /dev/null
 +++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
-@@ -0,0 +1,800 @@
+@@ -0,0 +1,801 @@
 +/*
 + * mt65xx pinctrl driver based on Allwinner A1X pinctrl driver.
 + * Copyright (c) 2014 MediaTek Inc.
@@ -852,7 +852,8 @@ index 0000000..721f429
 +		return -EINVAL;
 +	}
 +
-+	err = pinconf_generic_parse_dt_config(node, &configs, &num_configs);
++	err = pinconf_generic_parse_dt_config(node, NULL, &configs,
++			&num_configs);
 +	if (num_configs)
 +		has_config = 1;
 +
