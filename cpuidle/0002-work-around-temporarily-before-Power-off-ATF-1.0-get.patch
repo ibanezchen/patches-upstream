@@ -1,0 +1,30 @@
+From 9b81586d81b55bca4e1ba7e5c190cd82eb9f05ca Mon Sep 17 00:00:00 2001
+From: Howard Chen <howard.chen@linaro.org>
+Date: Wed, 18 Mar 2015 12:10:48 +0800
+Subject: [PATCH 2/2] work around temporarily before Power-off @ ATF-1.0 get
+ stable
+
+---
+ drivers/cpuidle/cpuidle-arm64.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/cpuidle/cpuidle-arm64.c b/drivers/cpuidle/cpuidle-arm64.c
+index 39a2c62..58e3edd 100644
+--- a/drivers/cpuidle/cpuidle-arm64.c
++++ b/drivers/cpuidle/cpuidle-arm64.c
+@@ -49,7 +49,11 @@ static int arm64_enter_idle_state(struct cpuidle_device *dev,
+ 		 * call the CPU ops suspend protocol with idle index as a
+ 		 * parameter.
+ 		 */
+-		ret = cpu_suspend(idx);
++
++		cpu_do_idle();
++		ret = idx;
++		//work around temporarily 
++		//ret = cpu_suspend(idx);
+ 
+ 		cpu_pm_exit();
+ 	}
+-- 
+1.9.1
+
