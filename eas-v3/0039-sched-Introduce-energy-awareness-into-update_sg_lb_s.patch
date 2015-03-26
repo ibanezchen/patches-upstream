@@ -1,0 +1,56 @@
+From 0795166c37c6ae6473993ceb64a507d62729fc30 Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Tue, 20 Jan 2015 11:22:35 +0000
+Subject: [PATCH 39/48] sched: Introduce energy awareness into
+ update_sg_lb_stats
+
+To be able to identify the least efficient (costliest) sched group
+introduce group_eff as the efficiency of the sched group into sg_lb_stats.
+The group efficiency is defined as the ratio between the group usage and
+the group energy consumption.
+
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Peter Zijlstra <peterz@infradead.org>
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d668bbd..cd61c34 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6344,6 +6344,7 @@ struct sg_lb_stats {
+ 	unsigned long load_per_task;
+ 	unsigned long group_capacity;
+ 	unsigned long group_usage; /* Total usage of the group */
++	unsigned long group_eff;
+ 	unsigned int sum_nr_running; /* Nr tasks running in the group */
+ 	unsigned int idle_cpus;
+ 	unsigned int group_weight;
+@@ -6714,6 +6715,21 @@ static inline void update_sg_lb_stats(struct lb_env *env,
+ 
+ 	sgs->group_no_capacity = group_is_overloaded(env, sgs);
+ 	sgs->group_type = group_classify(env, group, sgs);
++
++	if (env->use_ea) {
++		struct energy_env eenv = {
++			.sg_top         = group,
++			.usage_delta    = 0,
++			.src_cpu        = -1,
++			.dst_cpu        = -1,
++		};
++		unsigned long group_energy = sched_group_energy(&eenv);
++
++		if (group_energy)
++			sgs->group_eff = 1024*sgs->group_usage/group_energy;
++		else
++			sgs->group_eff = ULONG_MAX;
++	}
+ }
+ 
+ /**
+-- 
+2.2.2
+

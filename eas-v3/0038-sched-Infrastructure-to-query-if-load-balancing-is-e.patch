@@ -1,0 +1,45 @@
+From c5746c7daf20fe6c09c306614becc56a5cc59bb1 Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Wed, 28 Jan 2015 16:57:06 +0000
+Subject: [PATCH 38/48] sched: Infrastructure to query if load balancing is
+ energy-aware
+
+Energy-aware load balancing should only happen if the ENERGY_AWARE feature
+is turned on and the sched domain on which the load balancing is performed
+on contains energy data.
+There is also a need during a load balance action to be able to query if we
+should continue to load balance energy-aware or if we reached the tipping
+point which forces us to fall back to the conventional load balancing
+functionality.
+
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Peter Zijlstra <peterz@infradead.org>
+
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index bfcd057..d668bbd 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -5835,6 +5835,7 @@ struct lb_env {
+ 
+ 	enum fbq_type		fbq_type;
+ 	struct list_head	tasks;
++	bool                    use_ea;
+ };
+ 
+ /*
+@@ -7347,6 +7348,7 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ 		.cpus		= cpus,
+ 		.fbq_type	= all,
+ 		.tasks		= LIST_HEAD_INIT(env.tasks),
++		.use_ea		= (energy_aware() && sd->groups->sge) ? true : false,
+ 	};
+ 
+ 	/*
+-- 
+2.2.2
+

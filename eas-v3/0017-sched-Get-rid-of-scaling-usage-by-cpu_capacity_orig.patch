@@ -1,0 +1,40 @@
+From 283c474c1490e43727db11fcefab68cf9be27b8b Mon Sep 17 00:00:00 2001
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Date: Tue, 25 Nov 2014 20:52:28 +0000
+Subject: [PATCH 17/48] sched: Get rid of scaling usage by cpu_capacity_orig
+
+Since now we have besides frequency invariant also cpu (uarch plus max
+system frequency) invariant cfs_rq::utilization_load_avg both, frequency
+and cpu scaling happens as part of the load tracking.
+So cfs_rq::utilization_load_avg does not have to be scaled by the original
+capacity of the cpu again.
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+---
+ kernel/sched/fair.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index b15ea63..7e877ad 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4806,12 +4806,11 @@ done:
+ static int get_cpu_usage(int cpu)
+ {
+ 	unsigned long usage = cpu_rq(cpu)->cfs.utilization_load_avg;
+-	unsigned long capacity = capacity_orig_of(cpu);
+ 
+ 	if (usage >= SCHED_LOAD_SCALE)
+-		return capacity;
++		return capacity_orig_of(cpu);
+ 
+-	return (usage * capacity) >> SCHED_LOAD_SHIFT;
++	return usage;
+ }
+ 
+ /*
+-- 
+2.2.2
+

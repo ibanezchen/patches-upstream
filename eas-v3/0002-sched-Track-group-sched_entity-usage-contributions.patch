@@ -1,0 +1,55 @@
+From 7ce6dcf05f1f735fd711d46c949dff60dbb00323 Mon Sep 17 00:00:00 2001
+From: Morten Rasmussen <morten.rasmussen@arm.com>
+Date: Thu, 15 Jan 2015 11:09:22 +0100
+Subject: [PATCH 02/48] sched: Track group sched_entity usage contributions
+
+Adds usage contribution tracking for group entities. Unlike
+se->avg.load_avg_contrib, se->avg.utilization_avg_contrib for group
+entities is the sum of se->avg.utilization_avg_contrib for all entities on the
+group runqueue. It is _not_ influenced in any way by the task group
+h_load. Hence it is representing the actual cpu usage of the group, not
+its intended load contribution which may differ significantly from the
+utilization on lightly utilized systems.
+
+cc: Paul Turner <pjt@google.com>
+cc: Ben Segall <bsegall@google.com>
+
+Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+---
+ kernel/sched/debug.c | 2 ++
+ kernel/sched/fair.c  | 3 +++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+index 578ff83..a245c1f 100644
+--- a/kernel/sched/debug.c
++++ b/kernel/sched/debug.c
+@@ -94,8 +94,10 @@ static void print_cfs_group_stats(struct seq_file *m, int cpu, struct task_group
+ 	P(se->load.weight);
+ #ifdef CONFIG_SMP
+ 	P(se->avg.runnable_avg_sum);
++	P(se->avg.running_avg_sum);
+ 	P(se->avg.avg_period);
+ 	P(se->avg.load_avg_contrib);
++	P(se->avg.utilization_avg_contrib);
+ 	P(se->avg.decay_count);
+ #endif
+ #undef PN
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index dacf2c5..f91cafe 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2734,6 +2734,9 @@ static long __update_entity_utilization_avg_contrib(struct sched_entity *se)
+ 
+ 	if (entity_is_task(se))
+ 		__update_task_entity_utilization(se);
++	else
++		se->avg.utilization_avg_contrib =
++					group_cfs_rq(se)->utilization_load_avg;
+ 
+ 	return se->avg.utilization_avg_contrib - old_contrib;
+ }
+-- 
+2.2.2
+
