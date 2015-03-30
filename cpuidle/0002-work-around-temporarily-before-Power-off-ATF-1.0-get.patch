@@ -1,4 +1,4 @@
-From 9b81586d81b55bca4e1ba7e5c190cd82eb9f05ca Mon Sep 17 00:00:00 2001
+From 13f5976377fe16e9e35bdd2bbed3719efe42cf9d Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Wed, 18 Mar 2015 12:10:48 +0800
 Subject: [PATCH 2/2] work around temporarily before Power-off @ ATF-1.0 get
