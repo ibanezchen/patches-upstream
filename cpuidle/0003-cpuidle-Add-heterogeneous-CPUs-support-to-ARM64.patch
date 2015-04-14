@@ -1,0 +1,90 @@
+From 58e81cadc30463c94f9d24eb122f7b6b0b2cdaaa Mon Sep 17 00:00:00 2001
+From: Howard Chen <howard.chen@linaro.org>
+Date: Tue, 14 Apr 2015 14:34:54 +0800
+Subject: [PATCH 3/4] cpuidle: Add heterogeneous CPUs support to ARM64
+
+This patch generalizes the CPU idle ARM64 driver to support
+descriptions for a heterogeneous systems in device tree.
+Currently, the device tree allows a CPU node to have its
+cpu-idle-states different with others, however current CPU idle
+ARM64 driver put a limitation on all CPUs to share the same
+driver instance and thus an unified cpu-idle-states.
+This patch removes this limitations and make CPU idle ARM64
+able to support a heterogeneous system described by device tree.
+
+Signed-off-by: Howard Chen <howard.chen@linaro.org>
+---
+ drivers/cpuidle/cpuidle-arm64.c | 43 ++++++++++++++++++++++++++---------------
+ 1 file changed, 27 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/cpuidle/cpuidle-arm64.c b/drivers/cpuidle/cpuidle-arm64.c
+index 39a2c62..d63b99d 100644
+--- a/drivers/cpuidle/cpuidle-arm64.c
++++ b/drivers/cpuidle/cpuidle-arm64.c
+@@ -17,6 +17,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/slab.h>
+ 
+ #include <asm/cpuidle.h>
+ 
+@@ -94,29 +95,39 @@ static int __init arm64_idle_init(void)
+ {
+ 	int cpu, ret;
+ 	struct cpuidle_driver *drv = &arm64_idle_driver;
+-
+-	/*
+-	 * Initialize idle states data, starting at index 1.
+-	 * This driver is DT only, if no DT idle states are detected (ret == 0)
+-	 * let the driver initialization fail accordingly since there is no
+-	 * reason to initialize the idle driver if only wfi is supported.
+-	 */
+-	ret = dt_init_idle_driver(drv, arm64_idle_state_match, 1);
+-	if (ret <= 0)
+-		return ret ? : -ENODEV;
++	cpumask_t *cpumask;
+ 
+ 	/*
+ 	 * Call arch CPU operations in order to initialize
+ 	 * idle states suspend back-end specific data
+ 	 */
+ 	for_each_possible_cpu(cpu) {
+-		ret = cpu_init_idle(cpu);
+-		if (ret) {
+-			pr_err("CPU %d failed to init idle CPU ops\n", cpu);
+-			return ret;
++		if(cpu){
++			drv = kzalloc(sizeof(struct cpuidle_driver),
++				      GFP_KERNEL);
++			memcpy(drv, &arm64_idle_driver,
++			       sizeof(arm64_idle_driver));
+ 		}
++		cpumask = kzalloc(cpumask_size(), GFP_KERNEL);
++		cpumask_empty(cpumask);
++		cpumask_set_cpu(cpu, cpumask);
++		drv->cpumask = cpumask;
++		/*
++		* Initialize idle states data, starting at index 1.
++		* This driver is DT only, if no DT idle states are detected (ret == 0)
++		* let the driver initialization fail accordingly since there is no
++		* reason to initialize the idle driver if only wfi is supported.
++		*/
++		ret = dt_init_idle_driver(drv, arm64_idle_state_match, 1);
++		if (ret <= 0)
++			pr_warn("CPU %d failed to init idle dt\n", cpu);
++		ret = cpu_init_idle(cpu);
++		if (ret)
++			pr_warn("CPU %d failed to init idle CPU ops\n", cpu);
++		ret = cpuidle_register(drv, NULL);
++		if (ret)
++			pr_warn("CPU %d failed to register idle driver\n", cpu);
+ 	}
+-
+-	return cpuidle_register(drv, NULL);
++	return 0;
+ }
+ device_initcall(arm64_idle_init);
+-- 
+1.9.1
+
