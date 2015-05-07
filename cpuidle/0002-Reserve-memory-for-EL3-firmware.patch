@@ -1,0 +1,25 @@
+From 4aab8478d1ba227cd2f6d7bfe0880c19bf801806 Mon Sep 17 00:00:00 2001
+From: Howard Chen <howard.chen@linaro.org>
+Date: Thu, 7 May 2015 15:57:47 +0800
+Subject: [PATCH 2/5] Reserve memory for EL3 firmware
+
+Signed-off-by: Howard Chen <howard.chen@linaro.org>
+---
+ arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+index 99b51ef..cc39a18 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+@@ -13,6 +13,7 @@
+  */
+ 
+ /dts-v1/;
++/memreserve/ 0x43100000 0x60000;
+ #include "mt8173.dtsi"
+ 
+ / {
+-- 
+1.9.1
+
