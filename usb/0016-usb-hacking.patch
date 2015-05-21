@@ -1,18 +1,66 @@
-From 6f9c73737f8115f6b559a1790b2083bcb9cfddb5 Mon Sep 17 00:00:00 2001
+From 8cb4c5ed1e31ec90c172e02159ebd3e09aedd662 Mon Sep 17 00:00:00 2001
 From: "freedom.tan" <freedom.tan@mediatek.com>
 Date: Wed, 20 May 2015 14:42:22 +0800
 Subject: [PATCH 16/16] usb hacking
 
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi | 13 ++++---------
- drivers/usb/phy/phy-mt65xx-usb3.c        |  1 -
- 2 files changed, 4 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 13 +++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi    | 19 ++++++++-----------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
 
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+index f57a153..bef4bec 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+@@ -348,6 +348,14 @@
+ 			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
+ 		};
+ 	};
++
++	usb_pins: usb@0 {
++		pins1 {
++			pinmux = <MT8173_PIN_101_MSDC2_DAT1__FUNC_GPIO101>;
++			output-high;
++			bias-disable;
++		};
++	};
+ };
+ 
+ /*
+@@ -446,6 +454,11 @@
+ 	clock-frequency = <100000>;
+ };
+ 
++&usb {
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb_pins>;
++};
++
+ &cpu0 {
+ 	proc-supply = <&mt6397_vpca15_reg>;
+ };
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 669b645..03d256b 100644
+index 669b645..b8bc456 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -397,23 +397,18 @@
+@@ -292,12 +292,14 @@
+ 			compatible = "mediatek,mt8173-scpsys";
+ 			#power-domain-cells = <1>;
+ 			reg = <0 0x10006000 0 0x1000>;
++			#clock-cells = <1>;
+ 			clocks = <&topckgen CLK_TOP_VDEC_SEL>,
+ 				 <&topckgen CLK_TOP_MFG_SEL>,
+ 				 <&topckgen CLK_TOP_VENC_SEL>,
+ 				 <&topckgen CLK_TOP_MM_SEL>,
+-				 <&topckgen CLK_TOP_VENC_LT_SEL>;
+-			clock-names = "vdec", "mfg", "venc", "disp", "ven2";
++				 <&topckgen CLK_TOP_VENC_LT_SEL>,
++				 <&topckgen CLK_TOP_USB30_SEL>;
++			clock-names = "vdec", "mfg", "venc", "disp", "ven2", "vusb";
+ 		};
+ 
+ 		pwrap: pwrap@1000d000 {
+@@ -397,22 +399,17 @@
  			status = "disabled";
  		};
  
@@ -30,28 +78,15 @@ index 669b645..03d256b 100644
  			usb-host = <&usb>;
  			reg-vusb33-supply = <&mt6397_vusb_reg>;
  			usb3_ref_clk = <&apmixedsys>;
- 			clocks = <&scpsys 10>,
+-			clocks = <&scpsys 10>,
 -				<&pericfg PERI_USB0>,
 -				<&pericfg PERI_USB1>;
--			clock-names = "scp_sys_usb", "peri_usb0", "peri_usb1";
++			clocks = <&topckgen CLK_TOP_USB30_SEL>,
 +				<&pericfg CLK_PERI_USB0>,
 +				<&pericfg CLK_PERI_USB1>;
-+			clock-names = "scp-sys-usb", "peri_usb0", "peri_usb1";
+ 			clock-names = "scp_sys_usb", "peri_usb0", "peri_usb1";
  		};
  
- 		usb: usb30@11270000 {
-diff --git a/drivers/usb/phy/phy-mt65xx-usb3.c b/drivers/usb/phy/phy-mt65xx-usb3.c
-index 8320a77..a053a2e 100644
---- a/drivers/usb/phy/phy-mt65xx-usb3.c
-+++ b/drivers/usb/phy/phy-mt65xx-usb3.c
-@@ -342,7 +342,6 @@ static inline void u3_xtal_clock_disable(struct mt65xx_u3phy *u3phy)
- static int get_u3phy_clks(struct mt65xx_u3phy *u3phy)
- {
- 	struct clk *tmp;
--
- 	tmp = devm_clk_get(u3phy->dev, "scp_sys_usb");
- 	if (IS_ERR(tmp)) {
- 		dev_err(u3phy->dev, "error to get scp-sys-usb\n");
 -- 
 1.9.1
 
