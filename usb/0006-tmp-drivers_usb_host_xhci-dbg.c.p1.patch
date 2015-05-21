@@ -1,7 +1,7 @@
-From 66ba5fc7bf6c7d1dc214742d4965fc9ca20e5fe4 Mon Sep 17 00:00:00 2001
+From f0910546390dcc5c5d544430818b2c5f4249c726 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:18:49 +0800
-Subject: [PATCH 06/14] tmp/drivers_usb_host_xhci-dbg.c.p1
+Subject: [PATCH 06/16] tmp/drivers_usb_host_xhci-dbg.c.p1
 
 ---
  drivers/usb/host/xhci-dbg.c | 2 +-

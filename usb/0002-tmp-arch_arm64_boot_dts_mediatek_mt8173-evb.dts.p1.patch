@@ -1,17 +1,17 @@
-From b753fd6173e6c82e6af3c2e230b20e3c33d4e93e Mon Sep 17 00:00:00 2001
+From b0887b20a9857044a0b99d3575358d15415f0650 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:18:45 +0800
-Subject: [PATCH 02/14] tmp/arch_arm64_boot_dts_mediatek_mt8173-evb.dts.p1
+Subject: [PATCH 02/16] tmp/arch_arm64_boot_dts_mediatek_mt8173-evb.dts.p1
 
 ---
  arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 4 ++++
  1 file changed, 4 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-index 0ddf221..d5b43f4 100644
+index 3178631..f57a153 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-@@ -431,3 +431,7 @@
+@@ -454,3 +454,7 @@
  	proc-supply = <&da9211_vcpu_reg>;
  	sram-supply = <&mt6397_vsramca7_reg>;
  };

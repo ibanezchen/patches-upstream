@@ -1,0 +1,195 @@
+From fc1ac09395fe96524973a86de8f5f45f8a7d8902 Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Wed, 4 Feb 2015 15:24:23 +0800
+Subject: [PATCH 4/6] Fix: add mediatek MT8173 I2C dts and config
+
+Add dts and config to enable MT8173 I2C
+
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 68 +++++++++++++++++++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi    | 64 +++++++++++++++++++++++++++
+ arch/arm64/configs/defconfig                |  2 +
+ 3 files changed, 134 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+index 0f6d792..6cd0aaa 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+@@ -377,3 +377,71 @@
+ 	core-power-supply = <&mt6397_vmch_reg>;
+ 	io-power-supply = <&mt6397_vmc_reg>;
+ };
++
++&i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c0_pins_a>;
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c1_pins_a>;
++	status = "okay";
++	clock-frequency = <100000>;
++	#address-cells = <1>;
++	#size-cells = <0>;
++	buck: da9211@68 {
++		compatible = "dlg,da9211";
++		reg = <0x68>;
++		regulators {
++			da9211_vcpu_reg: BUCKA {
++				regulator-name = "VBUCKA";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1310000>;
++				regulator-min-microamp	= <2000000>;
++				regulator-max-microamp	= <4400000>;
++				regulator-ramp-delay = <10000>;
++				regulator-always-on;
++			};
++			da9211_vgpu_reg: BUCKB {
++				regulator-name = "VBUCKB";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1310000>;
++				regulator-min-microamp	= <2000000>;
++				regulator-max-microamp	= <3000000>;
++				regulator-ramp-delay = <10000>;
++				regulator-always-on;
++			};
++		};
++	};
++};
++
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins_a>;
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c3_pins_a>;
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&i2c4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c4_pins_a>;
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&i2c6 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c6_pins_a>;
++	status = "okay";
++	clock-frequency = <100000>;
++};
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 1e3e0a1..c9839b4 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -52,6 +52,8 @@
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a53";
+ 			reg = <0x000>;
++			clocks = <&infracfg 12>, <&apmixedsys CLK_APMIXED_MAINPLL>;
++			clock-names = "cpu", "intermediate";
+ 		};
+ 
+ 		cpu1: cpu@1 {
+@@ -66,6 +68,8 @@
+ 			compatible = "arm,cortex-a57";
+ 			reg = <0x100>;
+ 			enable-method = "psci";
++			clocks = <&infracfg 13>, <&apmixedsys CLK_APMIXED_MAINPLL>;
++			clock-names = "cpu", "intermediate";
+ 		};
+ 
+ 		cpu3: cpu@101 {
+@@ -148,6 +152,66 @@
+ 			#clock-cells = <1>;
+ 		};
+ 
++		i2c0: i2c@11007000 {
++			compatible = "mediatek,mt8173-i2c";
++			reg = <0 0x11007000 0 0x70>,
++				<0 0x11000100 0 0x80>;
++			interrupts = <GIC_SPI 76 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg PERI_I2C2>, <&pericfg PERI_AP_DMA>;
++			clock-names = "main", "dma";
++		};
++
++		i2c1: i2c@11008000 {
++			compatible = "mediatek,mt8173-i2c";
++			reg = <0 0x11008000 0 0x70>,
++				<0 0x11000180 0 0x80>;
++			interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg PERI_I2C2>, <&pericfg PERI_AP_DMA>;
++			clock-names = "main", "dma";
++		};
++
++		i2c2: i2c@11009000 {
++			compatible = "mediatek,mt8173-i2c";
++			reg = <0 0x11009000 0 0x70>,
++				<0 0x11000200 0 0x80>;
++			interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg PERI_I2C2>, <&pericfg PERI_AP_DMA>;
++			clock-names = "main", "dma";
++		};
++
++		i2c3: i2c3@0x11010000 {
++			compatible = "mediatek,mt8173-i2c";
++			reg = <0 0x11010000 0 0x70>,
++				<0 0x11000280 0 0x80>;
++			interrupts = <GIC_SPI 79 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg PERI_I2C3>, <&pericfg PERI_AP_DMA>;
++			clock-names = "main", "dma";
++		};
++
++		i2c4: i2c4@0x11011000 {
++			compatible = "mediatek,mt8173-i2c";
++			reg = <0 0x11011000 0 0x70>,
++				<0 0x11000300 0 0x80>;
++			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg PERI_I2C4>, <&pericfg PERI_AP_DMA>;
++			clock-names = "main", "dma";
++		};
++
++		i2c6: i2c6@0x11013000 {
++			compatible = "mediatek,mt8173-i2c";
++			reg = <0 0x11013000 0 0x70>,
++				<0 0x11000080 0 0x80>;
++			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg PERI_I2C6>, <&pericfg PERI_AP_DMA>;
++			clock-names = "main", "dma";
++		};
++
+ 		infracfg: infracfg@10001000 {
+ 			compatible = "mediatek,mt8173-infracfg", "syscon";
+ 			reg = <0 0x10001000 0 0x1000>;
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 78e3234..cc49b8a 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -109,6 +109,8 @@ CONFIG_SERIAL_XILINX_PS_UART=y
+ CONFIG_SERIAL_XILINX_PS_UART_CONSOLE=y
+ CONFIG_VIRTIO_CONSOLE=y
+ # CONFIG_HW_RANDOM is not set
++CONFIG_I2C=y
++CONFIG_I2C_MT65XX=y
+ CONFIG_SPI=y
+ CONFIG_SPI_PL022=y
+ CONFIG_PINCTRL_MSM8916=y
+-- 
+1.9.1
+

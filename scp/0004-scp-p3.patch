@@ -1,4 +1,4 @@
-From 1208579acdca6c740a18463cd81a5d98d8a5d7d6 Mon Sep 17 00:00:00 2001
+From 2f584c0873eef6e3267983f1deeef33d5607d5ba Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Mon, 23 Mar 2015 17:20:32 +0800
 Subject: [PATCH 4/5] scp p3
@@ -8,12 +8,12 @@ Subject: [PATCH 4/5] scp p3
  1 file changed, 14 insertions(+)
 
 diff --git a/include/dt-bindings/clock/mt8173-clk.h b/include/dt-bindings/clock/mt8173-clk.h
-index a9d682d..51da204 100644
+index 5501cec..0724778 100644
 --- a/include/dt-bindings/clock/mt8173-clk.h
 +++ b/include/dt-bindings/clock/mt8173-clk.h
-@@ -213,4 +213,18 @@
- #define PERI_I2C6		35
- #define PERI_NR_CLK		36
+@@ -234,4 +234,18 @@
+ #define CLK_PERI_UART3_SEL		39
+ #define CLK_PERI_NR_CLK			40
  
 +/* SCP_SYS */
 +

@@ -1,7 +1,7 @@
-From 1b79ffdf88b8955de9f47d1207aa7912e6738f18 Mon Sep 17 00:00:00 2001
+From 81e0c78599720f925c95578688224b6ddf5c290d Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:20:22 +0800
-Subject: [PATCH 13/14] drivers/usb/host/xhci-mtk.h
+Subject: [PATCH 13/16] drivers/usb/host/xhci-mtk.h
 
 ---
  drivers/usb/host/xhci-mtk.c | 735 ++++++++++++++++++++++++++++++++++++++++++++

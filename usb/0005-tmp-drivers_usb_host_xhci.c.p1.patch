@@ -1,7 +1,7 @@
-From b9db2acfb267e818c9132820a60e7c8405d45dd7 Mon Sep 17 00:00:00 2001
+From f33da675ddc75d9079d6d5c0e934818e72e91be4 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:18:48 +0800
-Subject: [PATCH 05/14] tmp/drivers_usb_host_xhci.c.p1
+Subject: [PATCH 05/16] tmp/drivers_usb_host_xhci.c.p1
 
 ---
  drivers/usb/host/xhci.c | 136 +++++++++++++++++++++++++-----------------------

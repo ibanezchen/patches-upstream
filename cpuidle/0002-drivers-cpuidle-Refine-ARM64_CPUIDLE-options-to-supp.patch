@@ -1,0 +1,29 @@
+From 130bfa18d448c1e5a34e8c2d35c33914b8bcc789 Mon Sep 17 00:00:00 2001
+From: Howard Chen <howard.chen@linaro.org>
+Date: Tue, 14 Apr 2015 11:56:06 +0800
+Subject: [PATCH 2/3] drivers: cpuidle: Refine ARM64_CPUIDLE options to support
+ multiple drivers
+
+This patch adds a selection to the CPU_IDLE_MULTIPLE_DRIVERS for
+ARM64_CPUIDLE.
+
+Signed-off-by: Howard Chen <howard.chen@linaro.org>
+---
+ drivers/cpuidle/Kconfig.arm | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/cpuidle/Kconfig.arm b/drivers/cpuidle/Kconfig.arm
+index 21340e0..f521448 100644
+--- a/drivers/cpuidle/Kconfig.arm
++++ b/drivers/cpuidle/Kconfig.arm
+@@ -4,6 +4,7 @@
+ config ARM_CPUIDLE
+         bool "Generic ARM/ARM64 CPU idle Driver"
+         select DT_IDLE_STATES
++	select CPU_IDLE_MULTIPLE_DRIVERS
+         help
+           Select this to enable generic cpuidle driver for ARM.
+           It provides a generic idle driver whose idle states are configured
+-- 
+1.9.1
+

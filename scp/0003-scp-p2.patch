@@ -1,4 +1,4 @@
-From c095e610fb91ece17db8ccfa0c336e726f8e4182 Mon Sep 17 00:00:00 2001
+From 6aaa430721b95897c21dd18bd6a24f6994b322d9 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Mon, 23 Mar 2015 17:20:22 +0800
 Subject: [PATCH 3/5] scp p2
@@ -8,12 +8,12 @@ Subject: [PATCH 3/5] scp p2
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/clk/mediatek/clk-mtk.h b/drivers/clk/mediatek/clk-mtk.h
-index 559e71b..68e0b05 100644
+index 61035b9..e9521ee 100644
 --- a/drivers/clk/mediatek/clk-mtk.h
 +++ b/drivers/clk/mediatek/clk-mtk.h
-@@ -129,4 +129,11 @@ struct clk *mtk_clk_register_mux(
- 		u8 gate_bit,
- 		spinlock_t *lock);
+@@ -166,4 +166,11 @@ static inline void mtk_register_reset_controller(struct device_node *np,
+ }
+ #endif
  
 +/* dirty hack to make scpsys work */
 +extern spinlock_t *get_mtk_clk_lock(void);

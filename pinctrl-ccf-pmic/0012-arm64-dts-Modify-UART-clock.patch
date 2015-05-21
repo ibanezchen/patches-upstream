@@ -1,0 +1,60 @@
+From dc79b61e4b344c433a7f813f99950090a3a9cbe9 Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Mon, 27 Apr 2015 13:09:19 +0800
+Subject: [PATCH 12/27] arm64: dts: Modify UART clock
+
+Modify UART clock according new tty device tree binding
+
+Change-Id: Ibff6a212be5ba25b04d7ec279db7f2d5fb20bd5b
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 3b0f28e..d2aed57 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -217,7 +217,8 @@
+ 					"mediatek,mt6577-uart";
+ 			reg = <0 0x11002000 0 0x400>;
+ 			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_LOW>;
+-			clocks = <&uart_clk>;
++			clocks = <&uart_clk>, <&pericfg CLK_PERI_UART0>;
++			clock-names = "baud", "bus";
+ 			status = "disabled";
+ 		};
+ 
+@@ -226,7 +227,8 @@
+ 					"mediatek,mt6577-uart";
+ 			reg = <0 0x11003000 0 0x400>;
+ 			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_LOW>;
+-			clocks = <&uart_clk>;
++			clocks = <&uart_clk>, <&pericfg CLK_PERI_UART1>;
++			clock-names = "baud", "bus";
+ 			status = "disabled";
+ 		};
+ 
+@@ -235,7 +237,8 @@
+ 					"mediatek,mt6577-uart";
+ 			reg = <0 0x11004000 0 0x400>;
+ 			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>;
+-			clocks = <&uart_clk>;
++			clocks = <&uart_clk>, <&pericfg CLK_PERI_UART2>;
++			clock-names = "baud", "bus";
+ 			status = "disabled";
+ 		};
+ 
+@@ -244,7 +247,8 @@
+ 					"mediatek,mt6577-uart";
+ 			reg = <0 0x11005000 0 0x400>;
+ 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_LOW>;
+-			clocks = <&uart_clk>;
++			clocks = <&uart_clk>, <&pericfg CLK_PERI_UART3>;
++			clock-names = "baud", "bus";
+ 			status = "disabled";
+ 		};
+ 	};
+-- 
+1.9.1
+

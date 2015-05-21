@@ -1,0 +1,57 @@
+From 6f9c73737f8115f6b559a1790b2083bcb9cfddb5 Mon Sep 17 00:00:00 2001
+From: "freedom.tan" <freedom.tan@mediatek.com>
+Date: Wed, 20 May 2015 14:42:22 +0800
+Subject: [PATCH 16/16] usb hacking
+
+---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 13 ++++---------
+ drivers/usb/phy/phy-mt65xx-usb3.c        |  1 -
+ 2 files changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 669b645..03d256b 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -397,23 +397,18 @@
+ 			status = "disabled";
+ 		};
+ 
+-		scpsys: scpsys@10001000 {
+-			compatible = "mediatek,mt8173-scpsys";
+-			reg = <0 0x10001000 0 0x1000>, <0 0x10006000 0 0x1000>, <0 0x13fff000 0 0x1000>;
+-			#clock-cells = <1>;
+-		};
+-
+ 		u3phy: usb-phy@11271000 {
+ 			compatible = "mediatek,mt8173-u3phy";
+ 			reg = <0 0x11271000 0 0x3000>,
+ 				<0 0x11280000 0 0x20000>;
++			power-domains = <&scpsys MT8173_POWER_DOMAIN_USB>;
+ 			usb-host = <&usb>;
+ 			reg-vusb33-supply = <&mt6397_vusb_reg>;
+ 			usb3_ref_clk = <&apmixedsys>;
+ 			clocks = <&scpsys 10>,
+-				<&pericfg PERI_USB0>,
+-				<&pericfg PERI_USB1>;
+-			clock-names = "scp_sys_usb", "peri_usb0", "peri_usb1";
++				<&pericfg CLK_PERI_USB0>,
++				<&pericfg CLK_PERI_USB1>;
++			clock-names = "scp-sys-usb", "peri_usb0", "peri_usb1";
+ 		};
+ 
+ 		usb: usb30@11270000 {
+diff --git a/drivers/usb/phy/phy-mt65xx-usb3.c b/drivers/usb/phy/phy-mt65xx-usb3.c
+index 8320a77..a053a2e 100644
+--- a/drivers/usb/phy/phy-mt65xx-usb3.c
++++ b/drivers/usb/phy/phy-mt65xx-usb3.c
+@@ -342,7 +342,6 @@ static inline void u3_xtal_clock_disable(struct mt65xx_u3phy *u3phy)
+ static int get_u3phy_clks(struct mt65xx_u3phy *u3phy)
+ {
+ 	struct clk *tmp;
+-
+ 	tmp = devm_clk_get(u3phy->dev, "scp_sys_usb");
+ 	if (IS_ERR(tmp)) {
+ 		dev_err(u3phy->dev, "error to get scp-sys-usb\n");
+-- 
+1.9.1
+
