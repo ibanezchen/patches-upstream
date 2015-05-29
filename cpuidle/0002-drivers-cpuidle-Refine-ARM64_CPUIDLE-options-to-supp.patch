@@ -1,7 +1,7 @@
-From 130bfa18d448c1e5a34e8c2d35c33914b8bcc789 Mon Sep 17 00:00:00 2001
+From 808b385c1a7848d8a7e3c47cf267ef419d16723e Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Tue, 14 Apr 2015 11:56:06 +0800
-Subject: [PATCH 2/3] drivers: cpuidle: Refine ARM64_CPUIDLE options to support
+Subject: [PATCH 2/2] drivers: cpuidle: Refine ARM64_CPUIDLE options to support
  multiple drivers
 
 This patch adds a selection to the CPU_IDLE_MULTIPLE_DRIVERS for

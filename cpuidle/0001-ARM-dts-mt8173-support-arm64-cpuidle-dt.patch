@@ -1,18 +1,18 @@
-From f27d1455ca62a6180f267fe0897f6527ef9e372c Mon Sep 17 00:00:00 2001
+From 4e37990c956db65b5d7fca0ad7079d27570e63c6 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Wed, 18 Mar 2015 12:06:15 +0800
-Subject: [PATCH 1/3] ARM: dts: mt8173: support arm64 cpuidle-dt
+Subject: [PATCH 1/2] ARM: dts: mt8173: support arm64 cpuidle-dt
 
 This patch adds an idle-states node to describe the mt8173 idle states and
 also adds references to the idle-states node in all CPU nodes.
 
 Signed-off-by: Howard Chen <howard.chen@linaro.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 03d256b..7a3c8d1 100644
+index b8bc456..d40afdb 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 @@ -52,7 +52,9 @@
@@ -44,7 +44,7 @@ index 03d256b..7a3c8d1 100644
  			clock-names = "cpu", "intermediate";
  		};
  
-@@ -77,6 +81,19 @@
+@@ -77,6 +81,20 @@
  			compatible = "arm,cortex-a57";
  			reg = <0x101>;
  			enable-method = "psci";
@@ -58,8 +58,9 @@ index 03d256b..7a3c8d1 100644
 +				compatible = "arm,idle-state";
 +				arm,psci-suspend-param = <0x0010000>;
 +				entry-latency-us = <639>;
-+				exit-latency-us = <328>;
++				exit-latency-us = <680>;
 +				min-residency-us = <1088>;
++				local-timer-stop;
 +			};
  		};
  	};
