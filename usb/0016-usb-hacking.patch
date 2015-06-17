@@ -1,4 +1,4 @@
-From 8cb4c5ed1e31ec90c172e02159ebd3e09aedd662 Mon Sep 17 00:00:00 2001
+From 0cd2537c8bcb2b883a929d22971e122c12623266 Mon Sep 17 00:00:00 2001
 From: "freedom.tan" <freedom.tan@mediatek.com>
 Date: Wed, 20 May 2015 14:42:22 +0800
 Subject: [PATCH 16/16] usb hacking
@@ -9,7 +9,7 @@ Subject: [PATCH 16/16] usb hacking
  2 files changed, 21 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-index f57a153..bef4bec 100644
+index 4320089..303c100 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 @@ -348,6 +348,14 @@
@@ -36,14 +36,14 @@ index f57a153..bef4bec 100644
 +	pinctrl-0 = <&usb_pins>;
 +};
 +
- &cpu0 {
- 	proc-supply = <&mt6397_vpca15_reg>;
+ &u3phy {
+ 	p1-gpio = <&pio 130 0>;
  };
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 669b645..b8bc456 100644
+index 2d50261..165eae5 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -292,12 +292,14 @@
+@@ -288,12 +288,14 @@
  			compatible = "mediatek,mt8173-scpsys";
  			#power-domain-cells = <1>;
  			reg = <0 0x10006000 0 0x1000>;
@@ -60,7 +60,7 @@ index 669b645..b8bc456 100644
  		};
  
  		pwrap: pwrap@1000d000 {
-@@ -397,22 +399,17 @@
+@@ -393,22 +395,17 @@
  			status = "disabled";
  		};
  

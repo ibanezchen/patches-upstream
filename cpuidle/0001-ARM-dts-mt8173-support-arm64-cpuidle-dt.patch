@@ -1,4 +1,4 @@
-From 4e37990c956db65b5d7fca0ad7079d27570e63c6 Mon Sep 17 00:00:00 2001
+From 5b2d5b2b739501248e893bb8541f9d33ce00a146 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Wed, 18 Mar 2015 12:06:15 +0800
 Subject: [PATCH 1/2] ARM: dts: mt8173: support arm64 cpuidle-dt
@@ -8,25 +8,23 @@ also adds references to the idle-states node in all CPU nodes.
 
 Signed-off-by: Howard Chen <howard.chen@linaro.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index b8bc456..d40afdb 100644
+index 165eae5..7e42329 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -52,7 +52,9 @@
+@@ -52,6 +52,8 @@
  			device_type = "cpu";
  			compatible = "arm,cortex-a53";
  			reg = <0x000>;
--			clocks = <&infracfg 12>, <&apmixedsys CLK_APMIXED_MAINPLL>;
 +			enable-method = "psci";
 +			cpu-idle-states = <&CPU_SLEEP_0>;
-+			clocks = <&infracfg CLK_INFRA_CA53SEL>, <&apmixedsys CLK_APMIXED_MAINPLL>;
- 			clock-names = "cpu", "intermediate";
  		};
  
-@@ -61,6 +63,7 @@
+ 		cpu1: cpu@1 {
+@@ -59,6 +61,7 @@
  			compatible = "arm,cortex-a53";
  			reg = <0x001>;
  			enable-method = "psci";
@@ -34,17 +32,15 @@ index b8bc456..d40afdb 100644
  		};
  
  		cpu2: cpu@100 {
-@@ -68,7 +71,8 @@
+@@ -66,6 +69,7 @@
  			compatible = "arm,cortex-a57";
  			reg = <0x100>;
  			enable-method = "psci";
--			clocks = <&infracfg 13>, <&apmixedsys CLK_APMIXED_MAINPLL>;
 +			cpu-idle-states = <&CPU_SLEEP_0>;
-+			clocks = <&infracfg CLK_INFRA_CA57SEL>, <&apmixedsys CLK_APMIXED_MAINPLL>;
- 			clock-names = "cpu", "intermediate";
  		};
  
-@@ -77,6 +81,20 @@
+ 		cpu3: cpu@101 {
+@@ -73,6 +77,20 @@
  			compatible = "arm,cortex-a57";
  			reg = <0x101>;
  			enable-method = "psci";
