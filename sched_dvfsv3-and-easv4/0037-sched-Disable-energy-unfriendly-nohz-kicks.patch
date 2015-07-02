@@ -1,4 +1,4 @@
-From 7d74dddf7985a4d17f46998fc5939a97fc0a79c4 Mon Sep 17 00:00:00 2001
+From fe65d6a34fc06ec7732d18416ac1280648acba00 Mon Sep 17 00:00:00 2001
 From: "morten.rasmussen@arm.com" <morten.rasmussen@arm.com>
 Date: Tue, 12 May 2015 20:39:09 +0100
 Subject: [PATCH 37/37] sched: Disable energy-unfriendly nohz kicks
@@ -18,7 +18,7 @@ Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index d9344fe..6a3bb1b 100644
+index addfa27..9d3aff3 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
 @@ -8214,12 +8214,13 @@ static inline bool nohz_kick_needed(struct rq *rq)

@@ -1,4 +1,4 @@
-From 15f46ad40e292d4087c6b528fce5ecb92f9bcf45 Mon Sep 17 00:00:00 2001
+From 3f4b7e63bee87dd2421ae85b1f4627a7c161b7bc Mon Sep 17 00:00:00 2001
 From: "morten.rasmussen@arm.com" <morten.rasmussen@arm.com>
 Date: Tue, 12 May 2015 20:39:03 +0100
 Subject: [PATCH 31/37] sched: Count number of shallower idle-states in struct

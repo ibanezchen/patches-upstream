@@ -1,4 +1,4 @@
-From f2f8b1c9f9ddbcee75c83e29703b9f1a4a1170b0 Mon Sep 17 00:00:00 2001
+From bd320555af18cdcab1dd219d4e0951865c9a7f9f Mon Sep 17 00:00:00 2001
 From: "morten.rasmussen@arm.com" <morten.rasmussen@arm.com>
 Date: Tue, 12 May 2015 20:39:00 +0100
 Subject: [PATCH 28/37] sched: Add over-utilization/tipping point indicator
@@ -31,7 +31,7 @@ Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
  2 files changed, 34 insertions(+), 4 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 7cd3454..0895382 100644
+index 7cd3454..76d0a2a 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
 @@ -4253,6 +4253,8 @@ static inline void hrtick_update(struct rq *rq)
@@ -43,7 +43,15 @@ index 7cd3454..0895382 100644
  /*
   * The enqueue_task method is called before nr_running is
   * increased. Here we update the fair scheduling stats and
-@@ -4298,6 +4300,9 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+@@ -4264,6 +4266,7 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+ 	struct cfs_rq *cfs_rq;
+ 	struct sched_entity *se = &p->se;
+ 	unsigned long utilization, capacity;
++	int task_new = !(flags & ENQUEUE_WAKEUP);
+ 
+ 	for_each_sched_entity(se) {
+ 		if (se->on_rq)
+@@ -4298,6 +4301,9 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
  	if (!se) {
  		update_rq_runnable_avg(rq, rq->nr_running);
  		add_nr_running(rq, 1);
@@ -53,14 +61,6 @@ index 7cd3454..0895382 100644
  	}
  
  #ifdef CONFIG_CPU_FREQ_GOV_SCHED
-@@ -5596,6 +5601,7 @@ static void yield_task_fair(struct rq *rq)
- static bool yield_to_task_fair(struct rq *rq, struct task_struct *p, bool preempt)
- {
- 	struct sched_entity *se = &p->se;
-+	int task_new = !(flags & ENQUEUE_WAKEUP);
- 
- 	/* throttled hierarchies are not runnable */
- 	if (!se->on_rq || throttled_hierarchy(cfs_rq_of(se)))
 @@ -6259,6 +6265,14 @@ enum group_type {
  	group_overloaded,
  };

@@ -1,4 +1,4 @@
-From 981142d7d05447c68aece75292d10daf1e7332e7 Mon Sep 17 00:00:00 2001
+From d7343f24981cba59c3fc303293f7db03d2bebd9c Mon Sep 17 00:00:00 2001
 From: "morten.rasmussen@arm.com" <morten.rasmussen@arm.com>
 Date: Tue, 12 May 2015 20:39:06 +0100
 Subject: [PATCH 34/37] sched: Energy-aware wake-up task placement
@@ -23,10 +23,10 @@ Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
  1 file changed, 84 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 02b9f24..ac98558 100644
+index 3c83d31..2353e7d 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -5217,6 +5217,86 @@ done:
+@@ -5226,6 +5226,86 @@ done:
  	return target;
  }
  
@@ -113,7 +113,7 @@ index 02b9f24..ac98558 100644
  /*
   * select_task_rq_fair: Select target runqueue for the waking task in domains
   * that have the 'sd_flag' flag set. In practice, this is SD_BALANCE_WAKE,
-@@ -5269,7 +5349,10 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
+@@ -5278,7 +5358,10 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
  		prev_cpu = cpu;
  
  	if (sd_flag & SD_BALANCE_WAKE && want_sibling) {

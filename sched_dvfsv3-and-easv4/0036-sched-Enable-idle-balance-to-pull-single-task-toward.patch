@@ -1,4 +1,4 @@
-From 2a2387c86b12fbd0652079e37c7d857fb47f8f32 Mon Sep 17 00:00:00 2001
+From ba53e8f1074d60e735aed25fe42b70ed00955ea7 Mon Sep 17 00:00:00 2001
 From: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Date: Tue, 12 May 2015 20:39:08 +0100
 Subject: [PATCH 36/37] sched: Enable idle balance to pull single task towards
@@ -22,7 +22,7 @@ Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 3150730..d9344fe 100644
+index 32b7153..addfa27 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
 @@ -7359,6 +7359,13 @@ static int need_active_balance(struct lb_env *env)

@@ -1,4 +1,4 @@
-From c4267e88df2f749967764e6fd8b587fe25d13040 Mon Sep 17 00:00:00 2001
+From a2031d70cf0e5227c7d96644dd0ce0ca040cbe0f Mon Sep 17 00:00:00 2001
 From: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Date: Tue, 12 May 2015 20:39:04 +0100
 Subject: [PATCH 32/37] sched: Determine the current sched_group idle-state
@@ -15,17 +15,25 @@ cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Morten Rasmussen <morten.rasmussen@arm.com>
 Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
 ---
- kernel/sched/fair.c | 27 +++++++++++++++++++++++----
- 1 file changed, 23 insertions(+), 4 deletions(-)
+ kernel/sched/fair.c | 43 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 0895382..5db6af0 100644
+index 76d0a2a..49affba 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -4774,6 +4774,22 @@ static int find_new_capacity(struct energy_env *eenv,
+@@ -4775,6 +4775,30 @@ static int find_new_capacity(struct energy_env *eenv,
  	return idx;
  }
  
++static unsigned int capacity_margin = 1280; /* ~20% margin */
++
++static bool cpu_overutilized(int cpu)
++{
++	return (capacity_of(cpu) * 1024) <
++				(get_cpu_usage(cpu) * capacity_margin);
++}
++
 +static int group_idle_state(struct sched_group *sg)
 +{
 +	int i, state = INT_MAX;
@@ -45,7 +53,7 @@ index 0895382..5db6af0 100644
  /*
   * sched_group_energy(): Returns absolute energy consumption of cpus belonging
   * to the sched_group including shared resources shared only by members of the
-@@ -4816,7 +4832,8 @@ static unsigned int sched_group_energy(struct energy_env *eenv)
+@@ -4817,7 +4841,8 @@ static unsigned int sched_group_energy(struct energy_env *eenv)
  
  			do {
  				unsigned long group_util;
@@ -55,7 +63,7 @@ index 0895382..5db6af0 100644
  
  				if (sg_shared_cap && sg_shared_cap->group_weight >= sg->group_weight)
  					eenv->sg_cap = sg_shared_cap;
-@@ -4824,11 +4841,13 @@ static unsigned int sched_group_energy(struct energy_env *eenv)
+@@ -4825,11 +4850,13 @@ static unsigned int sched_group_energy(struct energy_env *eenv)
  					eenv->sg_cap = sg;
  
  				cap_idx = find_new_capacity(eenv, sg->sge);
@@ -72,6 +80,21 @@ index 0895382..5db6af0 100644
  
  				total_energy += sg_busy_energy + sg_idle_energy;
  
+@@ -6265,14 +6292,6 @@ enum group_type {
+ 	group_overloaded,
+ };
+ 
+-static unsigned int capacity_margin = 1280; /* ~20% margin */
+-
+-static bool cpu_overutilized(int cpu)
+-{
+-	return (capacity_of(cpu) * 1024) <
+-				(get_cpu_usage(cpu) * capacity_margin);
+-}
+-
+ /*
+  * sg_lb_stats - stats of a sched_group required for load_balancing
+  */
 -- 
 1.9.1
 

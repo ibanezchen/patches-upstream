@@ -1,4 +1,4 @@
-From 637e362a5d6b3e6a909159fd8dc38198e48354be Mon Sep 17 00:00:00 2001
+From 01bf296ae2de3d1e744cf0f7d5aa37489d080691 Mon Sep 17 00:00:00 2001
 From: "morten.rasmussen@arm.com" <morten.rasmussen@arm.com>
 Date: Tue, 12 May 2015 20:39:05 +0100
 Subject: [PATCH 33/37] sched: Add cpu capacity awareness to wakeup balancing
@@ -51,10 +51,10 @@ index 4cf1457..74f4cb2 100644
  					| 0*SD_SHARE_CPUCAPACITY
  					| 0*SD_SHARE_PKG_RESOURCES
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 5db6af0..02b9f24 100644
+index 49affba..3c83d31 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -5013,6 +5013,39 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p, int sync)
+@@ -5022,6 +5022,39 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p, int sync)
  	return 1;
  }
  
@@ -94,7 +94,7 @@ index 5db6af0..02b9f24 100644
  /*
   * find_idlest_group finds and returns the least busy CPU group within the
   * domain.
-@@ -5022,7 +5055,9 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
+@@ -5031,7 +5064,9 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
  		  int this_cpu, int sd_flag)
  {
  	struct sched_group *idlest = NULL, *group = sd->groups;
@@ -104,7 +104,7 @@ index 5db6af0..02b9f24 100644
  	int load_idx = sd->forkexec_idx;
  	int imbalance = 100 + (sd->imbalance_pct-100)/2;
  
-@@ -5053,6 +5088,12 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
+@@ -5062,6 +5097,12 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
  				load = target_load(i, load_idx);
  
  			avg_load += load;
@@ -117,7 +117,7 @@ index 5db6af0..02b9f24 100644
  		}
  
  		/* Adjust by relative CPU capacity of the group */
-@@ -5066,6 +5107,9 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
+@@ -5075,6 +5116,9 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
  		}
  	} while (group = group->next, group != sd->groups);
  
@@ -127,7 +127,7 @@ index 5db6af0..02b9f24 100644
  	if (!idlest || 100*this_load < imbalance*min_load)
  		return NULL;
  	return idlest;
-@@ -5086,7 +5130,7 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
+@@ -5095,7 +5139,7 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
  
  	/* Traverse only the allowed CPUs */
  	for_each_cpu_and(i, sched_group_cpus(group), tsk_cpus_allowed(p)) {
@@ -136,7 +136,7 @@ index 5db6af0..02b9f24 100644
  			struct rq *rq = cpu_rq(i);
  			struct cpuidle_state *idle = idle_get_state(rq);
  			if (idle && idle->exit_latency < min_exit_latency) {
-@@ -5098,7 +5142,8 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
+@@ -5107,7 +5151,8 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
  				min_exit_latency = idle->exit_latency;
  				latest_idle_timestamp = rq->idle_stamp;
  				shallowest_idle_cpu = i;
@@ -146,7 +146,7 @@ index 5db6af0..02b9f24 100644
  				   rq->idle_stamp > latest_idle_timestamp) {
  				/*
  				 * If equal or no active idle state, then
-@@ -5107,6 +5152,13 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
+@@ -5116,6 +5161,13 @@ find_idlest_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
  				 */
  				latest_idle_timestamp = rq->idle_stamp;
  				shallowest_idle_cpu = i;
@@ -160,7 +160,7 @@ index 5db6af0..02b9f24 100644
  			}
  		} else if (shallowest_idle_cpu == -1) {
  			load = weighted_cpuload(i);
-@@ -5184,9 +5236,14 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
+@@ -5193,9 +5245,14 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
  	int cpu = smp_processor_id();
  	int new_cpu = cpu;
  	int want_affine = 0;
@@ -176,7 +176,7 @@ index 5db6af0..02b9f24 100644
  		want_affine = cpumask_test_cpu(cpu, tsk_cpus_allowed(p));
  
  	rcu_read_lock();
-@@ -5211,7 +5268,7 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
+@@ -5220,7 +5277,7 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
  	if (affine_sd && cpu != prev_cpu && wake_affine(affine_sd, p, sync))
  		prev_cpu = cpu;
  

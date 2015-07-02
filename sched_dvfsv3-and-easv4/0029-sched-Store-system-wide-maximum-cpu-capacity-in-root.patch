@@ -1,4 +1,4 @@
-From b7784bdac1ee521665cc582c15a35332abfdb612 Mon Sep 17 00:00:00 2001
+From 9dcb4604a5ed554e30c068b94a1786b2f1553680 Mon Sep 17 00:00:00 2001
 From: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Date: Tue, 12 May 2015 20:39:01 +0100
 Subject: [PATCH 29/37] sched: Store system-wide maximum cpu capacity in root

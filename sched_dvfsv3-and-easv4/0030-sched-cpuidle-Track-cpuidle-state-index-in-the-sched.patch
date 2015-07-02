@@ -1,4 +1,4 @@
-From ee1259b7cc832b58015f5cc3da1933b02ffdbe80 Mon Sep 17 00:00:00 2001
+From d8b4e574e3be9b9c590a8158c0d403c25adc77a3 Mon Sep 17 00:00:00 2001
 From: "morten.rasmussen@arm.com" <morten.rasmussen@arm.com>
 Date: Tue, 12 May 2015 20:39:02 +0100
 Subject: [PATCH 30/37] sched, cpuidle: Track cpuidle state index in the
