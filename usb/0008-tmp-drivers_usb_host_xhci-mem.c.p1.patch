@@ -1,7 +1,7 @@
-From 61c89a72e6c197feb996762b3356b3d7024095bb Mon Sep 17 00:00:00 2001
+From 90c9f9809605942fc71bebaf370f1ac159fe5395 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:18:50 +0800
-Subject: [PATCH 08/14] tmp/drivers_usb_host_xhci-mem.c.p1
+Subject: [PATCH 08/16] tmp/drivers_usb_host_xhci-mem.c.p1
 
 ---
  drivers/usb/host/xhci-mem.c | 31 ++++++++++++++++++-------------

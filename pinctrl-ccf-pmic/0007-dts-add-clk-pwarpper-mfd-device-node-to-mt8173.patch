@@ -1,0 +1,345 @@
+From e9bbb4fa1df90d8b56f67f4192fdc4cbf4bf15b6 Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Sun, 1 Mar 2015 15:04:09 +0800
+Subject: [PATCH 07/27] dts: add clk, pwarpper, mfd device node to mt8173
+
+Add clk, pwarpper, mfd device node to mt8173
+
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 224 ++++++++++++++++++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi    |  65 ++++++++
+ 2 files changed, 289 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+index 43d5401..6fb88ba 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+@@ -36,3 +36,227 @@
+ &uart0 {
+ 	status = "okay";
+ };
++
++&pwrap {
++	pmic: mt6397 {
++		compatible = "mediatek,mt6397";
++		interrupt-parent = <&pio>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		interrupts = <11 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-controller;
++		#interrupt-cells = <2>;
++
++		syscfg_pctl_pmic: syscfg_pctl_pmic@0000C000 {
++			compatible = "mediatek,mt6397-pctl-pmic-syscfg", "syscon";
++			reg = <0 0x0000C000 0 0x0108>;
++		};
++
++		rtc: rtc@e000 {
++			compatible = "mediatek,mt6397-rtc";
++		};
++
++		pio6397: pinctrl@0x0000C000 {
++			compatible = "mediatek,mt6397-pinctrl";
++			mediatek,pctl-regmap = <&syscfg_pctl_pmic>;
++			gpio-controller;
++		};
++
++		mt6397codec: mt6397codec {
++			#sound-dai-cells = <1>;
++			compatible = "mediatek,mt6397-codec";
++		};
++
++		mt6397clock: mt6397clock {
++			compatible = "mediatek,mt6397-clk";
++			#clock-cells = <1>;
++		};
++
++		mt6397regulator: mt6397regulator {
++			compatible = "mediatek,mt6397-regulator";
++
++			mt6397_vpca15_reg: buck_vpca15 {
++				regulator-compatible = "buck_vpca15";
++				regulator-name = "vpca15";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1350000>;
++				regulator-ramp-delay = <12500>;
++				regulator-always-on;
++			};
++
++			mt6397_vpca7_reg: buck_vpca7 {
++				regulator-compatible = "buck_vpca7";
++				regulator-name = "vpca7";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1350000>;
++				regulator-ramp-delay = <12500>;
++				regulator-enable-ramp-delay = <115>;
++			};
++
++			mt6397_vsramca15_reg: buck_vsramca15 {
++				regulator-compatible = "buck_vsramca15";
++				regulator-name = "vsramca15";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1350000>;
++				regulator-ramp-delay = <12500>;
++				regulator-always-on;
++			};
++
++			mt6397_vsramca7_reg: buck_vsramca7 {
++				regulator-compatible = "buck_vsramca7";
++				regulator-name = "vsramca7";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1350000>;
++				regulator-ramp-delay = <12500>;
++				regulator-always-on;
++			};
++
++			mt6397_vcore_reg: buck_vcore {
++				regulator-compatible = "buck_vcore";
++				regulator-name = "vcore";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1350000>;
++				regulator-ramp-delay = <12500>;
++				regulator-always-on;
++			};
++
++			mt6397_vgpu_reg: buck_vgpu {
++				regulator-compatible = "buck_vgpu";
++				regulator-name = "vgpu";
++				regulator-min-microvolt = < 700000>;
++				regulator-max-microvolt = <1350000>;
++				regulator-ramp-delay = <12500>;
++				regulator-enable-ramp-delay = <115>;
++			};
++
++			mt6397_vdrm_reg: buck_vdrm {
++				regulator-compatible = "buck_vdrm";
++				regulator-name = "vdrm";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <1400000>;
++				regulator-ramp-delay = <12500>;
++				regulator-always-on;
++			};
++
++			mt6397_vio18_reg: buck_vio18 {
++				regulator-compatible = "buck_vio18";
++				regulator-name = "vio18";
++				regulator-min-microvolt = <1620000>;
++				regulator-max-microvolt = <1980000>;
++				regulator-ramp-delay = <12500>;
++				regulator-always-on;
++			};
++
++			mt6397_vtcxo_reg: ldo_vtcxo {
++				regulator-compatible = "ldo_vtcxo";
++				regulator-name = "vtcxo";
++				regulator-always-on;
++			};
++
++			mt6397_va28_reg: ldo_va28 {
++				regulator-compatible = "ldo_va28";
++				regulator-name = "va28";
++				regulator-always-on;
++			};
++
++			mt6397_vcama_reg: ldo_vcama {
++				regulator-compatible = "ldo_vcama";
++				regulator-name = "vcama";
++				regulator-min-microvolt = <1500000>;
++				regulator-max-microvolt = <2800000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vio28_reg: ldo_vio28 {
++				regulator-compatible = "ldo_vio28";
++				regulator-name = "vio28";
++				regulator-always-on;
++			};
++
++			mt6397_vusb_reg: ldo_vusb {
++				regulator-compatible = "ldo_vusb";
++				regulator-name = "vusb";
++			};
++
++			mt6397_vmc_reg: ldo_vmc {
++				regulator-compatible = "ldo_vmc";
++				regulator-name = "vmc";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vmch_reg: ldo_vmch {
++				regulator-compatible = "ldo_vmch";
++				regulator-name = "vmch";
++				regulator-min-microvolt = <3000000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vemc_3v3_reg: ldo_vemc3v3 {
++				regulator-compatible = "ldo_vemc3v3";
++				regulator-name = "vemc_3v3";
++				regulator-min-microvolt = <3000000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vgp1_reg: ldo_vgp1 {
++				regulator-compatible = "ldo_vgp1";
++				regulator-name = "vcamd";
++				regulator-min-microvolt = <1220000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++
++			mt6397_vgp2_reg: ldo_vgp2 {
++				regulator-compatible = "ldo_vgp2";
++				regulator-name = "vcamio";
++				regulator-min-microvolt = <1000000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vgp3_reg: ldo_vgp3 {
++				regulator-compatible = "ldo_vgp3";
++				regulator-name = "vcamaf";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vgp4_reg: ldo_vgp4 {
++				regulator-compatible = "ldo_vgp4";
++				regulator-name = "vgp4";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vgp5_reg: ldo_vgp5 {
++				regulator-compatible = "ldo_vgp5";
++				regulator-name = "vgp5";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3000000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vgp6_reg: ldo_vgp6 {
++				regulator-compatible = "ldo_vgp6";
++				regulator-name = "vgp6";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++
++			mt6397_vibr_reg: ldo_vibr {
++				regulator-compatible = "ldo_vibr";
++				regulator-name = "vibr";
++				regulator-min-microvolt = <1300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-enable-ramp-delay = <218>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 924fdb6..3b0f28e 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -13,6 +13,8 @@
+ 
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/reset-controller/mt8173-resets.h>
++#include <dt-bindings/clock/mt8173-clk.h>
+ #include "mt8173-pinfunc.h"
+ 
+ / {
+@@ -81,6 +83,26 @@
+ 		cpu_on	      = <0x84000003>;
+ 	};
+ 
++	clocks {
++		clk_null: clk_null {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <0>;
++		};
++
++		clk26m: clk26m {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <26000000>;
++		};
++
++		clk32k: clk32k {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <32000>;
++		};
++	};
++
+ 	uart_clk: dummy26m {
+ 		compatible = "fixed-clock";
+ 		clock-frequency = <26000000>;
+@@ -111,6 +133,32 @@
+ 			reg = <0 0x10005000 0 0x1000>;
+ 		};
+ 
++		topckgen: topckgen@10000000 {
++			compatible = "mediatek,mt8173-topckgen";
++			reg = <0 0x10000000 0 0x1000>;
++			#clock-cells = <1>;
++		};
++
++		infracfg: infracfg@10001000 {
++			compatible = "mediatek,mt8173-infracfg", "syscon";
++			reg = <0 0x10001000 0 0x1000>;
++			#clock-cells = <1>;
++			#reset-cells = <1>;
++		};
++
++		scpsys: scpsys@10001000 {
++			compatible = "mediatek,mt8173-scpsys";
++			reg = <0 0x10001000 0 0x1000>, <0 0x10006000 0 0x1000>, <0 0x13fff000 0 0x1000>;
++			#clock-cells = <1>;
++		};
++
++		pericfg: pericfg@10003000 {
++			compatible = "mediatek,mt8173-pericfg", "syscon";
++			reg = <0 0x10003000 0 0x1000>;
++			#clock-cells = <1>;
++			#reset-cells = <1>;
++		};
++
+ 		pio: pinctrl@0x10005000 {
+ 			compatible = "mediatek,mt8173-pinctrl";
+ 			reg = <0 0x1000B000 0 0x1000>;
+@@ -134,6 +182,23 @@
+ 			reg = <0 0x10200620 0 0x20>;
+ 		};
+ 
++		pwrap: pwrap@1000D000 {
++			compatible = "mediatek,mt8173-pwrap";
++			reg = <0 0x1000D000 0 0x1000>;
++			reg-names = "pwrap";
++			interrupts = <GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>;
++			resets = <&infracfg MT8173_INFRA_PMIC_WRAP_RST>;
++			reset-names = "pwrap";
++			clocks = <&infracfg CLK_INFRA_PMICSPI>, <&infracfg CLK_INFRA_PMICWRAP>;
++			clock-names = "spi", "wrap";
++		};
++
++		apmixedsys: apmixedsys@10209000 {
++			compatible = "mediatek,mt8173-apmixedsys";
++			reg = <0 0x10209000 0 0x1000>;
++			#clock-cells = <1>;
++		};
++
+ 		gic: interrupt-controller@10220000 {
+ 			compatible = "arm,gic-400";
+ 			#interrupt-cells = <3>;
+-- 
+1.9.1
+

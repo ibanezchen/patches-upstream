@@ -1,14 +1,14 @@
-From fce0fccc297bc27e63b874ea52ec6750a22ed869 Mon Sep 17 00:00:00 2001
+From 8ff73993e0648a7172f9fe99100c8be7d185bc5f Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:19:15 +0800
-Subject: [PATCH 11/14] tmp/drivers_usb_phy_Kconfig.p1
+Subject: [PATCH 11/16] tmp/drivers_usb_phy_Kconfig.p1
 
 ---
  drivers/usb/phy/Kconfig | 16 +++++++++++++---
  1 file changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/phy/Kconfig b/drivers/usb/phy/Kconfig
-index 52d3d58..df134fd 100644
+index 2175678..6843153 100644
 --- a/drivers/usb/phy/Kconfig
 +++ b/drivers/usb/phy/Kconfig
 @@ -20,7 +20,7 @@ config AB8500_USB

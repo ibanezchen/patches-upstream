@@ -1,0 +1,123 @@
+From 222c26fd9d23958fdd752a778cea3f6e9a9e9045 Mon Sep 17 00:00:00 2001
+From: Pi-Cheng Chen <pi-cheng.chen@linaro.org>
+Date: Wed, 17 Jun 2015 16:37:59 +0800
+Subject: [PATCH 3/4] Enable mt8173 cpufreq driver
+
+---
+ arch/arm64/boot/dts/mediatek/mt8173-evb.dts | 18 ++++++++++
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi    | 52 +++++++++++++++++++++++++++++
+ 2 files changed, 70 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+index 303c100..401309f 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
+@@ -462,3 +462,21 @@
+ &u3phy {
+ 	p1-gpio = <&pio 130 0>;
+ };
++
++&cpu0 {
++	proc-supply = <&mt6397_vpca15_reg>;
++};
++
++&cpu1 {
++	proc-supply = <&mt6397_vpca15_reg>;
++};
++
++&cpu2 {
++	proc-supply = <&da9211_vcpu_reg>;
++	sram-supply = <&mt6397_vsramca7_reg>;
++};
++
++&cpu3 {
++	proc-supply = <&da9211_vcpu_reg>;
++	sram-supply = <&mt6397_vsramca7_reg>;
++};
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 7e42329..48cf57f 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -54,6 +54,19 @@
+ 			reg = <0x000>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			clocks = <&infracfg CLK_INFRA_CA53SEL>,
++				 <&apmixedsys CLK_APMIXED_MAINPLL>;
++			clock-names = "cpu", "intermediate";
++			operating-points = <
++				507000  859000
++				702000  908000
++				1001000 983000
++				1105000 1009000
++				1183000 1028000
++				1404000 1083000
++				1508000 1109000
++				1573000 1125000
++			>;
+ 		};
+ 
+ 		cpu1: cpu@1 {
+@@ -62,6 +75,19 @@
+ 			reg = <0x001>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			clocks = <&infracfg CLK_INFRA_CA53SEL>,
++				 <&apmixedsys CLK_APMIXED_MAINPLL>;
++			clock-names = "cpu", "intermediate";
++			operating-points = <
++				507000  859000
++				702000  908000
++				1001000 983000
++				1105000 1009000
++				1183000 1028000
++				1404000 1083000
++				1508000 1109000
++				1573000 1125000
++			>;
+ 		};
+ 
+ 		cpu2: cpu@100 {
+@@ -70,6 +96,19 @@
+ 			reg = <0x100>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			clocks = <&infracfg CLK_INFRA_CA57SEL>,
++				 <&apmixedsys CLK_APMIXED_MAINPLL>;
++			clock-names = "cpu", "intermediate";
++			operating-points = <
++				507000  828000
++				702000  867000
++				1001000 927000
++				1209000 968000
++				1404000 1007000
++				1612000 1049000
++				1807000 1089000
++				1989000 1125000
++			>;
+ 		};
+ 
+ 		cpu3: cpu@101 {
+@@ -78,6 +117,19 @@
+ 			reg = <0x101>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			clocks = <&infracfg CLK_INFRA_CA57SEL>,
++				 <&apmixedsys CLK_APMIXED_MAINPLL>;
++			clock-names = "cpu", "intermediate";
++			operating-points = <
++				507000  828000
++				702000  867000
++				1001000 927000
++				1209000 968000
++				1404000 1007000
++				1612000 1049000
++				1807000 1089000
++				1989000 1125000
++			>;
+ 		};
+ 
+ 		idle-states {
+-- 
+1.9.1
+

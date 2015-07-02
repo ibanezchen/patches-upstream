@@ -1,0 +1,48 @@
+From 32eb2e3a6a9414867c9f1a38e157d8dd31a0b178 Mon Sep 17 00:00:00 2001
+From: Pi-Cheng Chen <pi-cheng.chen@linaro.org>
+Date: Wed, 17 Jun 2015 16:44:26 +0800
+Subject: [PATCH 4/4] disable unworkable OPPs
+
+---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 48cf57f..b7d8151 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -65,7 +65,6 @@
+ 				1183000 1028000
+ 				1404000 1083000
+ 				1508000 1109000
+-				1573000 1125000
+ 			>;
+ 		};
+ 
+@@ -86,7 +85,6 @@
+ 				1183000 1028000
+ 				1404000 1083000
+ 				1508000 1109000
+-				1573000 1125000
+ 			>;
+ 		};
+ 
+@@ -107,7 +105,6 @@
+ 				1404000 1007000
+ 				1612000 1049000
+ 				1807000 1089000
+-				1989000 1125000
+ 			>;
+ 		};
+ 
+@@ -128,7 +125,6 @@
+ 				1404000 1007000
+ 				1612000 1049000
+ 				1807000 1089000
+-				1989000 1125000
+ 			>;
+ 		};
+ 
+-- 
+1.9.1
+

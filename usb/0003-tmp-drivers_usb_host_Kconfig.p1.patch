@@ -1,14 +1,14 @@
-From c026ad954c9851a4cc6fe4e7b2d3a07478a2533e Mon Sep 17 00:00:00 2001
+From f3838efd7d928eaab1934addb307ee39ad95c388 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:18:46 +0800
-Subject: [PATCH 03/14] tmp/drivers_usb_host_Kconfig.p1
+Subject: [PATCH 03/16] tmp/drivers_usb_host_Kconfig.p1
 
 ---
  drivers/usb/host/Kconfig | 49 ++++++++++++++++++++++++++++++++++--------------
  1 file changed, 35 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
-index 5ad60e4..cf06a15 100644
+index 197a6a3..48ae2a9 100644
 --- a/drivers/usb/host/Kconfig
 +++ b/drivers/usb/host/Kconfig
 @@ -50,6 +50,15 @@ config USB_XHCI_RCAR

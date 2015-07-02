@@ -1,4 +1,4 @@
-From cbc5fe5f67355ecb6b9b006b95a68aafc9e20a20 Mon Sep 17 00:00:00 2001
+From e316d49eb26804cf9677a141b343a6b4a74c5218 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Mon, 23 Mar 2015 17:20:12 +0800
 Subject: [PATCH 2/5] scp p1
@@ -8,22 +8,22 @@ Subject: [PATCH 2/5] scp p1
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/clk/mediatek/clk-mt8173.c b/drivers/clk/mediatek/clk-mt8173.c
-index 39227b4..7673600 100644
+index d98d88b..a9d95cb 100644
 --- a/drivers/clk/mediatek/clk-mt8173.c
 +++ b/drivers/clk/mediatek/clk-mt8173.c
-@@ -239,6 +239,12 @@
+@@ -25,6 +25,12 @@
  
- static DEFINE_SPINLOCK(lock);
+ static DEFINE_SPINLOCK(mt8173_clk_lock);
  
 +/* dirty hack to make scpsys work */
 +spinlock_t *get_mtk_clk_lock(void)
 +{
-+       return &lock;
++	return &mt8173_clk_lock;
 +}
 +
- static struct mtk_fixed_factor root_clk_alias[] __initdata = {
- 	FACTOR(TOP_CLKPH_MCK_O, clkph_mck_o, clk_null, 1, 1),
- 	FACTOR(TOP_DPI_CK, dpi_ck, clk_null, 1, 1),
+ static const struct mtk_fixed_factor root_clk_alias[] __initconst = {
+ 	FACTOR(CLK_TOP_CLKPH_MCK_O, "clkph_mck_o", "clk_null", 1, 1),
+ 	FACTOR(CLK_TOP_DPI, "dpi_ck", "clk_null", 1, 1),
 -- 
 1.9.1
 

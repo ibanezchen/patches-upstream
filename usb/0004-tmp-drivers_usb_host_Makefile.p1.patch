@@ -1,7 +1,7 @@
-From 1370d08a7831ac8866a341092259a85cd306e433 Mon Sep 17 00:00:00 2001
+From bd9c21277b8a35fc750776fc64e760af534b7b09 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:18:47 +0800
-Subject: [PATCH 04/14] tmp/drivers_usb_host_Makefile.p1
+Subject: [PATCH 04/16] tmp/drivers_usb_host_Makefile.p1
 
 ---
  drivers/usb/host/Makefile | 4 ++++

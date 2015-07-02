@@ -1,14 +1,14 @@
-From 34c6a83271835cc767a8c130a48fb14d07362263 Mon Sep 17 00:00:00 2001
+From a62b7f695e15362e108d959e75fdb3d957c763c5 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:19:14 +0800
-Subject: [PATCH 10/14] tmp/drivers_usb_host_xhci-ring.c.p1
+Subject: [PATCH 10/16] tmp/drivers_usb_host_xhci-ring.c.p1
 
 ---
  drivers/usb/host/xhci-ring.c | 186 +++++++++++++++++++++++++++----------------
  1 file changed, 117 insertions(+), 69 deletions(-)
 
 diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 88da8d6..40c1927 100644
+index 7d34cbf..c19d9be 100644
 --- a/drivers/usb/host/xhci-ring.c
 +++ b/drivers/usb/host/xhci-ring.c
 @@ -68,6 +68,7 @@
@@ -194,7 +194,7 @@ index 88da8d6..40c1927 100644
  			}
  		}
  	}
-@@ -2354,8 +2366,8 @@ static int handle_tx_event(struct xhci_hcd *xhci,
+@@ -2365,8 +2377,8 @@ static int handle_tx_event(struct xhci_hcd *xhci,
  			status = 0;
  			break;
  		}
@@ -205,7 +205,7 @@ index 88da8d6..40c1927 100644
  		goto cleanup;
  	}
  
-@@ -2497,7 +2509,7 @@ cleanup:
+@@ -2508,7 +2520,7 @@ cleanup:
  			urb = td->urb;
  			urb_priv = urb->hcpriv;
  
@@ -214,7 +214,7 @@ index 88da8d6..40c1927 100644
  
  			usb_hcd_unlink_urb_from_ep(bus_to_hcd(urb->dev->bus), urb);
  			if ((urb->actual_length != urb->transfer_buffer_length &&
-@@ -2967,11 +2979,7 @@ int xhci_queue_intr_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -2978,11 +2990,7 @@ int xhci_queue_intr_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  	return xhci_queue_bulk_tx(xhci, mem_flags, urb, slot_id, ep_index);
  }
  
@@ -227,7 +227,7 @@ index 88da8d6..40c1927 100644
  static u32 xhci_td_remainder(unsigned int remainder)
  {
  	u32 max = (1 << (21 - 17 + 1)) - 1;
-@@ -3120,9 +3128,14 @@ static int queue_bulk_sg_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3131,9 +3139,14 @@ static int queue_bulk_sg_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  
  		/* Set the TRB length, TD size, and interrupter fields. */
  		if (xhci->hci_version < 0x100) {
@@ -243,7 +243,7 @@ index 88da8d6..40c1927 100644
  		} else {
  			remainder = xhci_v1_0_td_remainder(running_total,
  					trb_buff_len, total_packet_count, urb,
-@@ -3173,6 +3186,20 @@ static int queue_bulk_sg_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3184,6 +3197,20 @@ static int queue_bulk_sg_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  	return 0;
  }
  
@@ -264,7 +264,7 @@ index 88da8d6..40c1927 100644
  /* This is very similar to what ehci-q.c qtd_fill() does */
  int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  		struct urb *urb, int slot_id, unsigned int ep_index)
-@@ -3214,7 +3241,11 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3225,7 +3252,11 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  		num_trbs++;
  		running_total += TRB_MAX_BUFF_SIZE;
  	}
@@ -277,7 +277,7 @@ index 88da8d6..40c1927 100644
  
  	ret = prepare_transfer(xhci, xhci->devs[slot_id],
  			ep_index, urb->stream_id,
-@@ -3275,9 +3306,14 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3286,9 +3317,14 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  
  		/* Set the TRB length, TD size, and interrupter fields. */
  		if (xhci->hci_version < 0x100) {
@@ -293,7 +293,7 @@ index 88da8d6..40c1927 100644
  		} else {
  			remainder = xhci_v1_0_td_remainder(running_total,
  					trb_buff_len, total_packet_count, urb,
-@@ -3372,7 +3408,7 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3383,7 +3419,7 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  		field |= 0x1;
  
  	/* xHCI 1.0 6.4.1.2.1: Transfer Type field */
@@ -302,7 +302,7 @@ index 88da8d6..40c1927 100644
  		if (urb->transfer_buffer_length > 0) {
  			if (setup->bRequestType & USB_DIR_IN)
  				field |= TRB_TX_TYPE(TRB_DATA_IN);
-@@ -3396,8 +3432,14 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3407,8 +3443,14 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  		field = TRB_TYPE(TRB_DATA);
  
  	length_field = TRB_LEN(urb->transfer_buffer_length) |
@@ -318,7 +318,7 @@ index 88da8d6..40c1927 100644
  	if (urb->transfer_buffer_length > 0) {
  		if (setup->bRequestType & USB_DIR_IN)
  			field |= TRB_DIR_IN;
-@@ -3621,8 +3663,14 @@ static int xhci_queue_isoc_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+@@ -3632,8 +3674,14 @@ static int xhci_queue_isoc_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
  
  			/* Set the TRB length, TD size, & interrupter fields. */
  			if (xhci->hci_version < 0x100) {

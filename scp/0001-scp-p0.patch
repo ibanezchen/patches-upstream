@@ -1,4 +1,4 @@
-From c73e6f4612a3afc119dc93acc5ce73fd5796cdf7 Mon Sep 17 00:00:00 2001
+From 8f9aa28a2c70ff136cbe0be70b0ee532ebe89298 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Mon, 23 Mar 2015 17:19:56 +0800
 Subject: [PATCH 1/5] scp p0

@@ -1,7 +1,7 @@
-From 9f016a8951c7130c34c899d772c2b844baccfd69 Mon Sep 17 00:00:00 2001
+From dd8c9f985e51e31f41f62c7a6a59b832a3dabdc8 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:19:19 +0800
-Subject: [PATCH 12/14] tmp/drivers_usb_phy_Makefile.p1
+Subject: [PATCH 12/16] tmp/drivers_usb_phy_Makefile.p1
 
 ---
  drivers/usb/phy/Makefile | 1 +

@@ -1,7 +1,7 @@
-From 5e89171987d0552d0a9e4ad3356db8cf20a9958a Mon Sep 17 00:00:00 2001
+From 88050401ac537b208a53e3c0c079c2d473cf4870 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
 Date: Fri, 20 Mar 2015 12:20:52 +0800
-Subject: [PATCH 14/14] drivers/usb/phy/phy-mt65xx-usb3.c
+Subject: [PATCH 14/16] drivers/usb/phy/phy-mt65xx-usb3.c
 
 ---
  drivers/usb/phy/phy-mt65xx-usb.h  | 205 +++++++++++

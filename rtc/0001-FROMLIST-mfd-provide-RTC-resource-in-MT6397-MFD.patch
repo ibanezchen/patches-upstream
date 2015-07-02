@@ -1,0 +1,50 @@
+From 5def3374f7afc7bdb69f02f3f3bcf47d40219c3b Mon Sep 17 00:00:00 2001
+From: Eddie Huang <eddie.huang@mediatek.com>
+Date: Tue, 28 Apr 2015 15:35:54 +0800
+Subject: [PATCH 1/2] FROMLIST: mfd: provide RTC resource in MT6397 MFD
+
+Provide MT6397 RTC interrupt, base address, and register in
+MT6397 MFD.
+
+Patchwork: https://patchwork.kernel.org/patch/6286371/
+Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/mfd/mt6397-core.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 09bc780..08cfbd1 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -21,9 +21,27 @@
+ #include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6397/registers.h>
+ 
++#define MT6397_RTC_BASE		0xe000
++#define MT6397_RTC_SIZE		0x3e
++
++static const struct resource mt6397_rtc_resources[] = {
++	{
++		.start = MT6397_RTC_BASE,
++		.end   = MT6397_RTC_BASE + MT6397_RTC_SIZE,
++		.flags  = IORESOURCE_MEM,
++	},
++	{
++		.start = MT6397_IRQ_RTC,
++		.end   = MT6397_IRQ_RTC,
++		.flags  = IORESOURCE_IRQ,
++	},
++};
++
+ static const struct mfd_cell mt6397_devs[] = {
+ 	{
+ 		.name = "mt6397-rtc",
++		.num_resources = ARRAY_SIZE(mt6397_rtc_resources),
++		.resources = mt6397_rtc_resources,
+ 		.of_compatible = "mediatek,mt6397-rtc",
+ 	}, {
+ 		.name = "mt6397-regulator",
+-- 
+1.9.1
+
