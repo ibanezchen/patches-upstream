@@ -1,7 +1,7 @@
-From 9fbf8f47a6847f125fd5a1946eb66520757bf19c Mon Sep 17 00:00:00 2001
+From 5fe2aff0bd164a3ca6ff76fc51aa7d75dd9ab9a3 Mon Sep 17 00:00:00 2001
 From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 Date: Tue, 7 Jul 2015 16:29:17 +0800
-Subject: [PATCH 3/6] usb: phy: add usb3.0 phy driver for mt65xx SoCs
+Subject: [PATCH 3/5] usb: phy: add usb3.0 phy driver for mt65xx SoCs
 
 Change-Id: I69c12fa9e9c716249dc8f35f0959425ead1f4265
 Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>

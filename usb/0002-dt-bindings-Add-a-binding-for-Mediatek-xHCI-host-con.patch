@@ -1,7 +1,7 @@
-From 47027e41ed04d09d8b2ad4bb66fd57b1414d0bcc Mon Sep 17 00:00:00 2001
+From e272715c049d0dc8947f8d7cf40a95d643f0e55c Mon Sep 17 00:00:00 2001
 From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 Date: Tue, 7 Jul 2015 17:16:20 +0800
-Subject: [PATCH 2/6] dt-bindings: Add a binding for Mediatek xHCI host
+Subject: [PATCH 2/5] dt-bindings: Add a binding for Mediatek xHCI host
  controller
 
 add a DT binding documentation of xHCI host controller for the

@@ -1,7 +1,7 @@
-From cd1b1a16600d2d01e330d1504cd3129261ed4c84 Mon Sep 17 00:00:00 2001
+From 251649d3612b3c653d15f353f9a0e04adc2d94ec Mon Sep 17 00:00:00 2001
 From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 Date: Tue, 7 Jul 2015 17:05:51 +0800
-Subject: [PATCH 5/6] arm64: dts: mediatek: add xHCI & usb phy for mt8173
+Subject: [PATCH 5/5] arm64: dts: mediatek: add xHCI & usb phy for mt8173
 
 Change-Id: I2c12414879b827346c0329f3a5189299b764811b
 Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
@@ -11,7 +11,7 @@ Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
  2 files changed, 42 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
-index f433c21..cb63dc3 100644
+index 986f25f..390be17 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt8173-evb.dts
 @@ -13,6 +13,7 @@
@@ -37,8 +37,8 @@ index f433c21..cb63dc3 100644
 +	};
  };
  
- &pwrap {
-@@ -211,3 +221,8 @@
+ &i2c1 {
+@@ -264,3 +274,8 @@
  &uart0 {
  	status = "okay";
  };
@@ -48,7 +48,7 @@ index f433c21..cb63dc3 100644
 +	reg-vbus-supply = <&usb_p1_vbus>;
 +};
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 0696f8f..452bd0a 100644
+index 359b8b6..36d7b0c 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 @@ -15,6 +15,7 @@
@@ -59,7 +59,7 @@ index 0696f8f..452bd0a 100644
  #include "mt8173-pinfunc.h"
  
  / {
-@@ -393,6 +394,32 @@
+@@ -411,6 +412,32 @@
  			#size-cells = <0>;
  			status = "disabled";
  		};

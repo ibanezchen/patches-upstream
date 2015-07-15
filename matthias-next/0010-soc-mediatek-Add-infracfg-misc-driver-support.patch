@@ -1,7 +1,7 @@
-From fbb140ed8ad2307feaebd94f260ed8992ba61646 Mon Sep 17 00:00:00 2001
+From 9c118f86cb8d7126df25f61c0856b973684e19cc Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 24 Jun 2015 08:17:02 +0200
-Subject: [PATCH 07/10] soc: mediatek: Add infracfg misc driver support
+Subject: [PATCH 10/12] soc: mediatek: Add infracfg misc driver support
 
 This adds support for some miscellaneous bits of the infracfg controller.
 The mtk_infracfg_set/clear_bus_protection functions are necessary for

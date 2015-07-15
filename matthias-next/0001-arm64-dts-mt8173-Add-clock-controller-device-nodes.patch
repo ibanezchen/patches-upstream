@@ -1,7 +1,7 @@
-From 5c2cafbfa9c074e6ea1298487c89a23617acf3c3 Mon Sep 17 00:00:00 2001
+From 585af588cdc458cbc4f0cfcaabae549d3e8d59b1 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 20 May 2015 15:32:44 +0200
-Subject: [PATCH 01/10] arm64: dts: mt8173: Add clock controller device nodes
+Subject: [PATCH 01/12] arm64: dts: mt8173: Add clock controller device nodes
 
 This adds the device nodes providing clocks on the Mediatek MT8173.
 These are: topckgen, infracfg, pericfg and apmixedsys. These are

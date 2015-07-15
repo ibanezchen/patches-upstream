@@ -1,7 +1,7 @@
-From d18df7a8c07bd6e2c2c099c55b3f4e9de2f8f749 Mon Sep 17 00:00:00 2001
+From 740c836c2a146c2a11c9f08f28117e58fc524f16 Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Wed, 17 Jun 2015 23:08:03 +0800
-Subject: [PATCH 05/10] arm64: dts: mt8173: Add I2C device node
+Subject: [PATCH 05/12] arm64: dts: mt8173: Add I2C device node
 
 Add MT8173 I2C device nodes, include I2C controllers and pins.
 MT8173 has six I2C controllers, from i2c0 to i2c6, exclude i2c5.

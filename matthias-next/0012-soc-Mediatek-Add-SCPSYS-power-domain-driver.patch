@@ -1,7 +1,7 @@
-From b495726c0af77dd74c724c40de673bb804e6e545 Mon Sep 17 00:00:00 2001
+From 0fa64bfe710d5c13c7f71e97b5b6c14db0c5fe5a Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 24 Jun 2015 08:17:04 +0200
-Subject: [PATCH 09/10] soc: Mediatek: Add SCPSYS power domain driver
+Subject: [PATCH 12/12] soc: Mediatek: Add SCPSYS power domain driver
 
 This adds a power domain driver for the Mediatek SCPSYS unit.
 

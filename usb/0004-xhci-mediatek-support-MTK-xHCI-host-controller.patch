@@ -1,7 +1,7 @@
-From c67528c2558d321144e82eb9d65bd18816124506 Mon Sep 17 00:00:00 2001
+From 5dea7ea1169f7b71c47bfaa86ffc5887b407c4dd Mon Sep 17 00:00:00 2001
 From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 Date: Tue, 7 Jul 2015 16:59:53 +0800
-Subject: [PATCH 4/6] xhci: mediatek: support MTK xHCI host controller
+Subject: [PATCH 4/5] xhci: mediatek: support MTK xHCI host controller
 
 MTK xhci host controller defines some extra SW scheduling
 parameters for HW to minimize the scheduling effort for

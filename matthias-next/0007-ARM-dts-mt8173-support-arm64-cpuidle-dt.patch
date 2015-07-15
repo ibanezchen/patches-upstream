@@ -1,26 +1,15 @@
-From 0672b93e0c6cc14f31e0583b971fada8da9230c1 Mon Sep 17 00:00:00 2001
+From b8737915d9fa62a14034e2f6aa115b6a4032f244 Mon Sep 17 00:00:00 2001
 From: Howard Chen <howard.chen@linaro.org>
-Date: Wed, 18 Mar 2015 12:06:15 +0800
-Subject: [PATCH 10/10] ARM: dts: mt8173: support arm64 cpuidle-dt
+Date: Thu, 4 Jun 2015 15:13:37 +0800
+Subject: [PATCH 07/12] ARM: dts: mt8173: support arm64 cpuidle-dt
 
 This patch adds an idle-states node to describe the mt8173 idle states and
 also adds references to the idle-states node in all CPU nodes.
 
-Changes:
-
-v4:
-- Refine the property ordering.
-
-v3:
-- Add the local-timer-stop property.
-
-v2:
-- Remove the change to the PSCI version.
-- Remove the cluster idle state.
-- Fine tune the latency properties of the idle state.
-
 Signed-off-by: Howard Chen <howard.chen@linaro.org>
 Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 ---
  arch/arm64/boot/dts/mediatek/mt8173.dtsi | 18 ++++++++++++++++++
  1 file changed, 18 insertions(+)

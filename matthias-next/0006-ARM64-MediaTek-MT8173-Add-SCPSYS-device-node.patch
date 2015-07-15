@@ -1,7 +1,7 @@
-From 15c3fbc417eef92f33cfdaeec92857b725ffd67d Mon Sep 17 00:00:00 2001
+From 0c8732995b8c92d674d0eaaac6a0c5fcc741d4f1 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 24 Jun 2015 08:17:05 +0200
-Subject: [PATCH 06/10] ARM64: MediaTek MT8173: Add SCPSYS device node
+Subject: [PATCH 06/12] ARM64: MediaTek MT8173: Add SCPSYS device node
 
 This adds the SCPSYS device node to the MT8173 dtsi file.
 

@@ -1,7 +1,7 @@
-From e4ec41ff1e631b6a5579abdd42616d5234554c29 Mon Sep 17 00:00:00 2001
+From 1a1ccd63ee5a5ea8316878c8a078ecacc7757bdd Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 24 Jun 2015 08:17:03 +0200
-Subject: [PATCH 08/10] dt-bindings: soc: Add documentation for the MediaTek
+Subject: [PATCH 11/12] dt-bindings: soc: Add documentation for the MediaTek
  SCPSYS unit
 
 This adds documentation for the MediaTek SCPSYS unit found in MT8173 SoCs.

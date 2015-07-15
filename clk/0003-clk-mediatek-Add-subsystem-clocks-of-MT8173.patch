@@ -1,7 +1,7 @@
-From e2d52a9fb79c900d526687fb5101245ba4c89447 Mon Sep 17 00:00:00 2001
+From 58a572aafea66055fb56a3d6f8739c18cde1113b Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Tue, 30 Jun 2015 10:58:46 +0800
-Subject: [PATCH 3/5] clk: mediatek: Add subsystem clocks of MT8173
+Subject: [PATCH 3/4] clk: mediatek: Add subsystem clocks of MT8173
 
 Most multimedia subsystem clocks will be accessed by multiple
 drivers, so it's a better way to manage these clocks in CCF.

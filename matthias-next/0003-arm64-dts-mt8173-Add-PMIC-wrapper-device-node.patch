@@ -1,7 +1,7 @@
-From 359aed03b5ff26a490d8564e961bf176637dfb63 Mon Sep 17 00:00:00 2001
+From ab5b08e73fbf6c1bc6285956247d28055defa572 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 20 May 2015 15:32:46 +0200
-Subject: [PATCH 03/10] arm64: dts: mt8173: Add PMIC wrapper device node
+Subject: [PATCH 03/12] arm64: dts: mt8173: Add PMIC wrapper device node
 
 This adds the device node for the PMIC wrapper.
 

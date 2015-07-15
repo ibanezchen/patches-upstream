@@ -1,7 +1,7 @@
-From 45c68574879b60f27deae8c821287fc0480fab2e Mon Sep 17 00:00:00 2001
+From cb8d183b0d4455dfa514177ab5122acbb27b581b Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Tue, 30 Jun 2015 10:58:45 +0800
-Subject: [PATCH 2/5] dt-bindings: ARM: Mediatek: Document devicetree bindings
+Subject: [PATCH 2/4] dt-bindings: ARM: Mediatek: Document devicetree bindings
  for clock controllers
 
 This adds the binding documentation for the mmsys, imgsys, vdecsys,

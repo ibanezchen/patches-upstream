@@ -1,7 +1,7 @@
-From 700ba7059543f278956ec361a07751756dd69064 Mon Sep 17 00:00:00 2001
+From b26f8b213a9c8c82bf37627307ffa6e1572a7e26 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Tue, 30 Jun 2015 10:58:44 +0800
-Subject: [PATCH 1/5] clk: mediatek: mt8173: Fix enabling of critical clocks
+Subject: [PATCH 1/4] clk: mediatek: mt8173: Fix enabling of critical clocks
 
 On the MT8173 the clocks are provided by different units. To enable
 the critical clocks we must be sure that all parent clocks are already

@@ -1,7 +1,7 @@
-From 1c65e97d5b82a97539e28f8604c0276efb788771 Mon Sep 17 00:00:00 2001
+From 647fea6aad223b35a1111192129214acfae98da2 Mon Sep 17 00:00:00 2001
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Date: Wed, 20 May 2015 15:32:45 +0200
-Subject: [PATCH 02/10] arm64: dts: mt8173: Use real clock for UARTs
+Subject: [PATCH 02/12] arm64: dts: mt8173: Use real clock for UARTs
 
 We used to use a fixed rate clock for the UARTs. Now that we have clock
 support we can associate the correct clocks to the UARTs and drop the

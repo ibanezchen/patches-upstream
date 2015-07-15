@@ -1,7 +1,7 @@
-From d966f6e6f568b0775b9551741eba996fddf6dc19 Mon Sep 17 00:00:00 2001
+From a0e931cbed8c6b7fd18ea93caf8b6ed0f2beb294 Mon Sep 17 00:00:00 2001
 From: Eddie Huang <eddie.huang@mediatek.com>
 Date: Mon, 1 Jun 2015 21:08:26 +0800
-Subject: [PATCH 04/10] arm64: dts: mt8173: Add watchdog device node
+Subject: [PATCH 04/12] arm64: dts: mt8173: Add watchdog device node
 
 Add MT8173 watchdog device node.
 

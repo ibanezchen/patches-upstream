@@ -1,7 +1,7 @@
-From 68d4cfe6443c39d0ecafc3540af3063696a8a46f Mon Sep 17 00:00:00 2001
+From 5efbdeee13f770f3b5fa4b38af6bccde21e16e3e Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Tue, 30 Jun 2015 10:58:47 +0800
-Subject: [PATCH 4/5] clk: mediatek: Add USB clock support in MT8173 APMIXEDSYS
+Subject: [PATCH 4/4] clk: mediatek: Add USB clock support in MT8173 APMIXEDSYS
 
 Add REF2USB_TX clock support into MT8173 APMIXEDSYS. This clock
 is needed by USB 3.0.
