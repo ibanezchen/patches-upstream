@@ -1,0 +1,69 @@
+From b8737915d9fa62a14034e2f6aa115b6a4032f244 Mon Sep 17 00:00:00 2001
+From: Howard Chen <howard.chen@linaro.org>
+Date: Thu, 4 Jun 2015 15:13:37 +0800
+Subject: [PATCH 07/12] ARM: dts: mt8173: support arm64 cpuidle-dt
+
+This patch adds an idle-states node to describe the mt8173 idle states and
+also adds references to the idle-states node in all CPU nodes.
+
+Signed-off-by: Howard Chen <howard.chen@linaro.org>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 0696f8f..359b8b6 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -51,6 +51,8 @@
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a53";
+ 			reg = <0x000>;
++			enable-method = "psci";
++			cpu-idle-states = <&CPU_SLEEP_0>;
+ 		};
+ 
+ 		cpu1: cpu@1 {
+@@ -58,6 +60,7 @@
+ 			compatible = "arm,cortex-a53";
+ 			reg = <0x001>;
+ 			enable-method = "psci";
++			cpu-idle-states = <&CPU_SLEEP_0>;
+ 		};
+ 
+ 		cpu2: cpu@100 {
+@@ -65,6 +68,7 @@
+ 			compatible = "arm,cortex-a57";
+ 			reg = <0x100>;
+ 			enable-method = "psci";
++			cpu-idle-states = <&CPU_SLEEP_0>;
+ 		};
+ 
+ 		cpu3: cpu@101 {
+@@ -72,6 +76,20 @@
+ 			compatible = "arm,cortex-a57";
+ 			reg = <0x101>;
+ 			enable-method = "psci";
++			cpu-idle-states = <&CPU_SLEEP_0>;
++		};
++
++		idle-states {
++			entry-method = "arm,psci";
++
++			CPU_SLEEP_0: cpu-sleep-0 {
++				compatible = "arm,idle-state";
++				local-timer-stop;
++				entry-latency-us = <639>;
++				exit-latency-us = <680>;
++				min-residency-us = <1088>;
++				arm,psci-suspend-param = <0x0010000>;
++			};
+ 		};
+ 	};
+ 
+-- 
+1.9.1
+

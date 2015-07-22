@@ -1,3 +1,3 @@
-for p in cpufreq usb scp cpuidle easv4; do 
+for p in matthias-next clk usb cpufreq mmc; do 
 	git am ../patches-upstream/$p/*.patch; 
 done
