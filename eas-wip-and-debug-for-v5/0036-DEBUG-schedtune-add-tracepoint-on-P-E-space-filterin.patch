@@ -1,0 +1,122 @@
+From 1ecf351fd5bd301bd7f4c208c2b9db379018f825 Mon Sep 17 00:00:00 2001
+From: Patrick Bellasi <patrick.bellasi@arm.com>
+Date: Mon, 22 Jun 2015 14:07:27 +0100
+Subject: [PATCH 36/38] DEBUG: schedtune: add tracepoint on P-E space filtering
+
+Change-Id: I2947dd97573a41a8a7cac8a6f6467f3341f8009f
+Signed-off-by: Patrick Bellasi <patrick.bellasi@arm.com>
+---
+ include/trace/events/sched.h | 28 ++++++++++++++++++++++++++++
+ kernel/sched/tune.c          | 28 ++++++++++++++++++++++++----
+ 2 files changed, 52 insertions(+), 4 deletions(-)
+
+diff --git a/include/trace/events/sched.h b/include/trace/events/sched.h
+index ae6dd1e..cb3ef4b 100644
+--- a/include/trace/events/sched.h
++++ b/include/trace/events/sched.h
+@@ -827,6 +827,34 @@ TRACE_EVENT(sched_tune_tasks_update,
+ 		__entry->boost, __entry->max_boost)
+ );
+ 
++/*
++ * Tracepoint for schedtune_tasks_update
++ */
++TRACE_EVENT(sched_tune_filter,
++
++	TP_PROTO(int nrg_delta, int cap_delta, int nrg_payoff, int region),
++
++	TP_ARGS(nrg_delta, cap_delta, nrg_payoff, region),
++
++	TP_STRUCT__entry(
++		__field( int,	nrg_delta	)
++		__field( int,	cap_delta	)
++		__field( int,	nrg_payoff	)
++		__field( int,	region		)
++	),
++
++	TP_fast_assign(
++		__entry->nrg_delta	= nrg_delta;
++		__entry->cap_delta	= cap_delta;
++		__entry->nrg_payoff	= nrg_payoff;
++		__entry->region		= region;
++	),
++
++	TP_printk("nrg_delta=%d cap_delta=%d nrg_payoff=%d region=%d",
++		__entry->nrg_delta, __entry->cap_delta,
++		__entry->nrg_payoff, __entry->region)
++);
++
+ #endif /* _TRACE_SCHED_H */
+ 
+ /* This part must be outside protection */
+diff --git a/kernel/sched/tune.c b/kernel/sched/tune.c
+index 4274e71..9760a3f 100644
+--- a/kernel/sched/tune.c
++++ b/kernel/sched/tune.c
+@@ -137,6 +137,12 @@ __schedtune_accept_deltas(int nrg_delta, int cap_delta,
+ 		 */
+ 		energy_payoff  = cap_delta * threshold_gains[perf_boost_idx].nrg_gain;
+ 		energy_payoff -= nrg_delta * threshold_gains[perf_boost_idx].cap_gain;
++
++		trace_sched_tune_filter(
++				threshold_gains[perf_boost_idx].nrg_gain,
++				threshold_gains[perf_boost_idx].cap_gain,
++				energy_payoff, 8);
++
+ 		return energy_payoff;
+ 	}
+ 
+@@ -150,6 +156,12 @@ __schedtune_accept_deltas(int nrg_delta, int cap_delta,
+ 		 */
+ 		energy_payoff  = nrg_delta * threshold_gains[perf_constrain_idx].cap_gain;
+ 		energy_payoff -= cap_delta * threshold_gains[perf_constrain_idx].nrg_gain;
++
++		trace_sched_tune_filter(
++				threshold_gains[perf_constrain_idx].nrg_gain,
++				threshold_gains[perf_constrain_idx].cap_gain,
++				energy_payoff, 6);
++
+ 		return energy_payoff;
+ 	}
+ 
+@@ -220,12 +232,16 @@ schedtune_accept_deltas(int nrg_delta, int cap_delta, struct task_struct *task)
+ 	int perf_constrain_idx;
+ 
+ 	/* Optimal (O) region */
+-	if (nrg_delta < 0 && cap_delta > 0)
++	if (nrg_delta < 0 && cap_delta > 0) {
++		trace_sched_tune_filter(0, 0, 1, 0);
+ 		return INT_MAX;
++	}
+ 
+ 	/* Suboptimal (S) region */
+-	if (nrg_delta > 0 && cap_delta < 0)
++	if (nrg_delta > 0 && cap_delta < 0) {
++		trace_sched_tune_filter(0, 0, -1, 5);
+ 		return -INT_MAX;
++	}
+ 
+ 	/* Get task specific perf Boost/Constraints indexes */
+ 	rcu_read_lock();
+@@ -620,12 +636,16 @@ int
+ schedtune_accept_deltas(int nrg_delta, int cap_delta) {
+ 
+ 	/* Optimal (O) region */
+-	if (nrg_delta < 0 && cap_delta > 0)
++	if (nrg_delta < 0 && cap_delta > 0) {
++		trace_printk("schedtune_filter: region=O ngain=0 pgain=0 nrg_payoff=-1");
+ 		return INT_MAX;
++	}
+ 
+ 	/* Suboptimal (S) region */
+-	if (nrg_delta > 0 && cap_delta < 0)
++	if (nrg_delta > 0 && cap_delta < 0) {
++		trace_printk("schedtune_filter: region=S ngain=0 pgain=0 nrg_payoff=1");
+ 		return -INT_MAX;
++	}
+ 
+ 	return __schedtune_accept_deltas(nrg_delta, cap_delta,
+ 			perf_boost_idx, perf_constrain_idx);
+-- 
+1.9.1
+

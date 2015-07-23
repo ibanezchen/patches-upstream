@@ -1,0 +1,196 @@
+From 266d414a0d52923fa3d0de9b50ea263ce3ad2dc1 Mon Sep 17 00:00:00 2001
+From: Patrick Bellasi <patrick.bellasi@arm.com>
+Date: Mon, 22 Jun 2015 12:25:35 +0100
+Subject: [PATCH 24/38] WIP: sched/tune: compute and keep track of per CPU
+ boost value
+
+When per task boosting is enabled, we could have multiple RUNNABLE tasks
+which are concurrently scheduled on the same CPU but each one with
+a different boost value. For example, we could have a scenarios like
+that:
+
+  Task   SchedTune CGroup   Boost Value
+    T1               root            0
+    T2       low-priority           10
+    T3        interactive           90
+
+In these conditions we expect a CPU to be configured according to a
+proper "aggregation" of the required boost values for all the tasks
+currently scheduled by that CPU.
+
+A suitable aggregation function is the one which tracks the MAX boost
+value for all the tasks RUNNABLE on a CPU. This approach allows to
+always satisfy the most boost demanding task while at the same time:
+ a) boosting all the concurrently scheduled tasks thus reducing
+    potential co-scheduling side-effects on demanding tasks
+ b) reduce the frequency switching required to SchedDVFS thus being more
+    friendly to architectures with slow frequency switching times
+
+Every time a task enter/exit the RQ of a CPU the max boost value should
+be potentially updated considering all the boost groups currently
+"affecting" that CPU, i.e. because they have at least one RUNNABLE task
+currently allocated on that CPU.
+
+This patch introduces the required support to keep track of the boost
+groups currently affecting each CPU. The provided implementation is
+quite simple. Indeed, thanks to the limited number of boost groups which
+could be allocated on a system, a small and memory efficient per-cpu
+array of boost groups values (cpu_boost_groups) is used which is
+updated, for each CPU entry, by schedtune_boostgroup_update() but just
+when a schedtune CGroup boost value is updated.
+However, this is expected to be a not frequent operation, perhaps done
+just one time at system boot time.
+
+Change-Id: I4065438aa3b24731508dbb4ce4ce0278b306dacc
+Signed-off-by: Patrick Bellasi <patrick.bellasi@arm.com>
+---
+ kernel/sched/tune.c | 101 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 101 insertions(+)
+
+diff --git a/kernel/sched/tune.c b/kernel/sched/tune.c
+index a2f0027..596d74a 100644
+--- a/kernel/sched/tune.c
++++ b/kernel/sched/tune.c
+@@ -1,6 +1,7 @@
+ #include <linux/cgroup.h>
+ #include <linux/err.h>
+ #include <linux/kernel.h>
++#include <linux/percpu.h>
+ #include <linux/printk.h>
+ #include <linux/slab.h>
+ 
+@@ -254,6 +255,92 @@ static struct schedtune *allocated_group[BOOSTGROUPS_COUNT] = {
+ 	NULL,
+ };
+ 
++/* SchedTune boost groups
++ * Each CPU in the system could be affected by multiple boost groups, for
++ * example when a CPU has two RUNNABLE tasks beloging to two different boost
++ * groups and thus likely with different boost values.
++ * This data structure keep track of all the boost groups which could impact
++ * on a CPU.
++ * Since on each system we expect only a limited number of boost
++ * groups, here we use a simple array to keep track of the metrics required to
++ * compute the maximum per-CPU boosting value.
++ */
++struct boost_groups {
++	/* Maximum boost value for all RUNNABLE tasks on a CPU */
++	unsigned boost_max;
++	struct {
++		/* The boost for tasks on that boost group */
++		unsigned boost;
++		/* Count of RUNNABLE tasks on that boost group */
++		unsigned tasks;
++	} group[BOOSTGROUPS_COUNT];
++};
++
++/* Boost groups affecting each CPU in the system */
++DEFINE_PER_CPU(struct boost_groups, cpu_boost_groups);
++
++static void
++schedtune_cpu_update(int cpu)
++{
++	struct boost_groups *bg;
++	unsigned boost_max;
++	int idx;
++
++	bg = &per_cpu(cpu_boost_groups, cpu);
++
++	/* The root boost group is always active */
++	boost_max = bg->group[0].boost;
++	for (idx = 1; idx < BOOSTGROUPS_COUNT; ++idx) {
++		/*
++		 * A boost group affects a CPU only if it has
++		 * RUNNABLE tasks on that CPU
++		 */
++		if (bg->group[idx].tasks == 0)
++			continue;
++		boost_max = max(boost_max, bg->group[idx].boost);
++	}
++
++	bg->boost_max = boost_max;
++}
++
++static int
++schedtune_boostgroup_update(int idx, int boost)
++{
++	struct boost_groups *bg;
++	int cur_boost_max;
++	int old_boost;
++	int cpu;
++
++	/* Update per CPU boost groups */
++	for_each_possible_cpu(cpu) {
++		bg = &per_cpu(cpu_boost_groups, cpu);
++
++		/*
++		 * Keep track of current boost values to compute the per CPU
++		 * maximum only when it has been affected by the new value of
++		 * the updated boost group
++		 */
++		cur_boost_max = bg->boost_max;
++		old_boost = bg->group[idx].boost;
++
++		/* Update the boost value of this boost group */
++		bg->group[idx].boost = boost;
++
++		/* Check if this update increase current max */
++		if (boost > cur_boost_max && bg->group[idx].tasks) {
++			bg->boost_max = boost;
++			continue;
++		}
++
++		/* Check if this update has decreased current max */
++		if (cur_boost_max == old_boost && old_boost > boost) {
++			schedtune_cpu_update(cpu);
++		}
++	}
++
++	return 0;
++}
++
+ static u64
+ boost_read(struct cgroup_subsys_state *css, struct cftype *cft)
+ {
+@@ -288,6 +375,9 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
+ 	st->perf_constrain_idx  = 100 - boost;
+ 	st->perf_constrain_idx /= 10;
+ 
++	/* Update CPU boost */
++	schedtune_boostgroup_update(st->idx, st->boost);
++
+ out:
+ 	return err;
+ }
+@@ -305,10 +395,18 @@ static int
+ schedtune_boostgroup_init(struct schedtune *st)
+ {
+ 	struct boost_groups *bg;
++	int cpu;
+ 
+ 	/* Keep track of allocated boost group */
+ 	allocated_group[st->idx] = st;
+ 
++	/* Initialize the per CPU boost groups */
++	for_each_possible_cpu(cpu) {
++		bg = &per_cpu(cpu_boost_groups, cpu);
++		bg->group[st->idx].boost = 0;
++		bg->group[st->idx].tasks = 0;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -376,6 +474,9 @@ out:
+ static void
+ schedtune_boostgroup_release(struct schedtune *st)
+ {
++	/* Reset this group boost */
++	schedtune_boostgroup_update(st->idx, 0);
++
+ 	/* Keep track of allocated boost group */
+ 	allocated_group[st->idx] = NULL;
+ }
+-- 
+1.9.1
+

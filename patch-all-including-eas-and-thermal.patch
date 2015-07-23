@@ -1,0 +1,3 @@
+for p in matthias-next clk usb cpufreq mmc eas-rfcv5 eas-wip-and-debug-for-v5 thermal; do
+	git am ../patches-upstream/$p/*.patch; 
+done

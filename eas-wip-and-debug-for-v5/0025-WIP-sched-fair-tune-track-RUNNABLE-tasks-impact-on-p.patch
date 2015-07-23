@@ -1,0 +1,212 @@
+From 4431be319454b6be808aef19cc878fc2fbc53244 Mon Sep 17 00:00:00 2001
+From: Patrick Bellasi <patrick.bellasi@arm.com>
+Date: Tue, 7 Jul 2015 15:33:20 +0100
+Subject: [PATCH 25/38] WIP: sched/{fair,tune}: track RUNNABLE tasks impact on
+ per CPU boost value
+
+When per-task boosting is enabled, every time a task enter/exit a CPU
+its boost value could impact the currently selected OPP for that CPU.
+Thus, the "aggregated" boot value for that CPU potentially needs to
+be updated to match the current maximum boost value among all the tasks
+currently RUNNABLE on that CPU.
+
+This patch introduces the required support to keep track of which boost
+groups are impacting a CPU. Each time a task is enqueue/dequeued to/from
+a CPU its boost group is used to increment a per-cpu counter of RUNNABLE
+tasks on that CPU.
+Only when the number of runnable tasks for a specific boost group
+becomes 1 or 0 the corresponding boost group is changing its effects on
+that CPU, specifically:
+  a) boost_group::tasks == 1: this boost group start to impact the CPU
+  b) boost_group::tasks == 0: this boost group stop to impact the CPU
+In each of these two conditions the aggregation function:
+  sched_cpu_update(cpu)
+could be required to run in order to idenfity the new maximum boost
+value required for the CPU.
+
+The proposed patch allows to reduce at minimum the number of times the
+aggregation function is executed while still providing the required
+support to always boost a CPU to the maximum boost value required by all
+its currently RUNNABLE tasks.
+
+Change-Id: I5c85eda78fa061fd9dea486b331d93b3adee8159
+Signed-off-by: Patrick Bellasi <patrick.bellasi@arm.com>
+---
+ kernel/sched/fair.c |  6 ++++
+ kernel/sched/tune.c | 86 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/sched/tune.h |  9 ++++++
+ 3 files changed, 101 insertions(+)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 6a7898d..7ecc962 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4318,6 +4318,9 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+ 		if (!task_new && !rq->rd->overutilized &&
+ 		    cpu_overutilized(rq->cpu))
+ 			rq->rd->overutilized = true;
++
++		schedtune_enqueue_task(p, cpu_of(rq));
++
+ 		/*
+ 		 * We want to trigger a freq switch request only for tasks that
+ 		 * are waking up; this is because we get here also during
+@@ -4397,6 +4400,9 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+ 	if (!se) {
+ 		sub_nr_running(rq, 1);
+ 		update_rq_runnable_avg(rq, 1);
++
++		schedtune_dequeue_task(p, cpu_of(rq));
++
+ 		/*
+ 		 * We want to trigger a freq switch request only for tasks that
+ 		 * are going to sleep; this is because we get here also during
+diff --git a/kernel/sched/tune.c b/kernel/sched/tune.c
+index 596d74a..343e300 100644
+--- a/kernel/sched/tune.c
++++ b/kernel/sched/tune.c
+@@ -3,6 +3,7 @@
+ #include <linux/kernel.h>
+ #include <linux/percpu.h>
+ #include <linux/printk.h>
++#include <linux/rcupdate.h>
+ #include <linux/slab.h>
+ 
+ #include "sched.h"
+@@ -341,6 +342,79 @@ schedtune_boostgroup_update(int idx, int boost)
+ 	return 0;
+ }
+ 
++static inline void
++schedtune_tasks_update(struct task_struct *p, int cpu, int idx, int task_count)
++{
++	struct boost_groups *bg;
++	int tasks;
++
++	bg = &per_cpu(cpu_boost_groups, cpu);
++
++	/* Update boosted tasks count while avoiding to make it negative */
++	if (task_count < 0 && bg->group[idx].tasks <= -task_count)
++		bg->group[idx].tasks = 0;
++	else
++		bg->group[idx].tasks += task_count;
++
++	/* Boost group activation or deactivation on that RQ */
++	tasks = bg->group[idx].tasks;
++	if (tasks == 1 || tasks == 0)
++		schedtune_cpu_update(cpu);
++}
++
++/*
++ * NOTE: This function must be called while holding the lock on the CPU RQ
++ */
++void schedtune_enqueue_task(struct task_struct *p, int cpu)
++{
++	struct schedtune *st;
++	int idx;
++
++	/*
++	 * When a task is marked PF_EXITING by do_exit() it's going to be
++	 * dequeued and enqueued multiple times in the exit path.
++	 * Thus we avoid any further update, since we do not want to change
++	 * CPU boosting while the task is exiting.
++	 */
++	if (p->flags & PF_EXITING)
++		return;
++
++	/* Get task boost group */
++	rcu_read_lock();
++	st = task_schedtune(p);
++	idx = st->idx;
++	rcu_read_unlock();
++
++	schedtune_tasks_update(p, cpu, idx, 1);
++}
++
++/*
++ * NOTE: This function must be called while holding the lock on the CPU RQ
++ */
++void schedtune_dequeue_task(struct task_struct *p, int cpu)
++{
++	struct schedtune *st;
++	int idx;
++
++	/*
++	 * When a task is marked PF_EXITING by do_exit() it's going to be
++	 * dequeued and enqueued multiple times in the exit path.
++	 * Thus we avoid any further update, since we do not want to change
++	 * CPU boosting while the task is exiting.
++	 * The last dequeue will be done by cgroup exit() callback.
++	 */
++	if (p->flags & PF_EXITING)
++		return;
++
++	/* Get task boost group */
++	rcu_read_lock();
++	st = task_schedtune(p);
++	idx = st->idx;
++	rcu_read_unlock();
++
++	schedtune_tasks_update(p, cpu, idx, -1);
++}
++
+ static u64
+ boost_read(struct cgroup_subsys_state *css, struct cftype *cft)
+ {
+@@ -489,9 +563,21 @@ schedtune_css_free(struct cgroup_subsys_state *css)
+ 	kfree(st);
+ }
+ 
++static void
++schedtune_exit(struct cgroup_subsys_state *css,
++		struct cgroup_subsys_state *old_css,
++		struct task_struct *tsk)
++{
++	struct schedtune *old_st = css_st(old_css);
++	int cpu = task_cpu(tsk);
++
++	schedtune_tasks_update(tsk, cpu, old_st->idx, -1);
++}
++
+ struct cgroup_subsys schedtune_cgrp_subsys = {
+ 	.css_alloc	= schedtune_css_alloc,
+ 	.css_free	= schedtune_css_free,
++	.exit		= schedtune_exit,
+ 	.legacy_cftypes	= files,
+ 	.early_init	= 1,
+ };
+diff --git a/kernel/sched/tune.h b/kernel/sched/tune.h
+index c62c555..2c3b00f 100644
+--- a/kernel/sched/tune.h
++++ b/kernel/sched/tune.h
+@@ -5,6 +5,9 @@ extern int schedtune_normalize_energy(int energy);
+ 
+ #ifdef CONFIG_CGROUP_SCHEDTUNE
+ 
++extern void schedtune_enqueue_task(struct task_struct *p, int cpu);
++extern void schedtune_dequeue_task(struct task_struct *p, int cpu);
++
+ extern int schedtune_accept_deltas(int nrg_delta, int cap_delta,
+ 		struct task_struct *task);
+ 
+@@ -12,6 +15,9 @@ extern int schedtune_accept_deltas(int nrg_delta, int cap_delta,
+ 
+ extern int schedtune_accept_deltas(int nrg_delta, int cap_delta);
+ 
++#define schedtune_enqueue_task(task, cpu) while(0){}
++#define schedtune_dequeue_task(task, cpu) while(0){}
++
+ #endif /* CONFIG_CGROUP_SCHEDTUNE */
+ 
+ #else /* CONFIG_SCHED_TUNE */
+@@ -19,4 +25,7 @@ extern int schedtune_accept_deltas(int nrg_delta, int cap_delta);
+ #define schedtune_normalize_energy(energy) energy
+ #define schedtune_accept_deltas(nrg_delta, cap_delta) nrg_delta
+ 
++#define schedtune_enqueue_task(task, cpu) while(0){}
++#define schedtune_dequeue_task(task, cpu) while(0){}
++
+ #endif /* CONFIG_SCHED_TUNE */
+-- 
+1.9.1
+

@@ -1,4 +1,4 @@
-From feee164dc085d0382998993f8e32fb9d50ac9363 Mon Sep 17 00:00:00 2001
+From c83732f548e2df11bf369cc3ef4dceb74da22aa5 Mon Sep 17 00:00:00 2001
 From: "Dawei.Chien" <dawei.chien@mediatek.com>
 Date: Mon, 22 Jun 2015 20:33:15 +0800
 Subject: [PATCH 5/6] WIP: thermal: add device tree for MTK thermal cooling
@@ -11,11 +11,11 @@ TEST=build and boot oak-rev1
 
 Change-Id: I51cec23caec00777b7603d5b7e12d2ce166efe47
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi | 89 ++++++++++++++++++++++++++++++--
- 1 file changed, 84 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 87 ++++++++++++++++++++++++++++++--
+ 1 file changed, 82 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index c0649d0..e6aec07 100644
+index 39ec1cd..bb90213 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 @@ -17,6 +17,7 @@
@@ -26,23 +26,7 @@ index c0649d0..e6aec07 100644
  
  / {
  	compatible = "mediatek,mt8173";
-@@ -54,6 +55,7 @@
- 			reg = <0x000>;
- 			enable-method = "psci";
- 			cpu-idle-states = <&CPU_SLEEP_0>;
-+			/* cooling options */
- 			clocks = <&infracfg CLK_INFRA_CA53SEL>,
- 				 <&apmixedsys CLK_APMIXED_MAINPLL>;
- 			clock-names = "cpu", "intermediate";
-@@ -102,6 +104,7 @@
- 			reg = <0x100>;
- 			enable-method = "psci";
- 			cpu-idle-states = <&CPU_SLEEP_0>;
-+			/* cooling options */
- 			clocks = <&infracfg CLK_INFRA_CA57SEL>,
- 				 <&apmixedsys CLK_APMIXED_MAINPLL>;
- 			clock-names = "cpu", "intermediate";
-@@ -181,21 +184,97 @@
+@@ -187,21 +188,97 @@
  	};
  
          thermal-zones {

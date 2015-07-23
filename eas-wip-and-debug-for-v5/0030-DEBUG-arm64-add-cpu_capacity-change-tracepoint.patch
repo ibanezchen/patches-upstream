@@ -1,0 +1,40 @@
+From 8dd3847de8cfeda4364d0df47ab12907f3913432 Mon Sep 17 00:00:00 2001
+From: Juri Lelli <juri.lelli@arm.com>
+Date: Fri, 12 Jun 2015 15:36:10 +0100
+Subject: [PATCH 30/38] DEBUG: arm64: add cpu_capacity change tracepoint
+
+arm64 bits of the same debugging stuff.
+
+Change-Id: If59276ff59e4376d1f689247f5c94a632fd94715
+Signed-off-by: Juri Lelli <juri.lelli@arm.com>
+---
+ arch/arm64/kernel/smp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index 34fc4e5..ce31eb7 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -54,6 +54,7 @@
+ #include <asm/tlbflush.h>
+ #include <asm/ptrace.h>
+ 
++#include <trace/events/power.h>
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/ipi.h>
+ 
+@@ -817,8 +818,10 @@ static int cpufreq_callback(struct notifier_block *nb,
+ 	if (freq->flags & CPUFREQ_CONST_LOOPS)
+ 		return NOTIFY_OK;
+ 
+-	if (val == CPUFREQ_PRECHANGE)
++	if (val == CPUFREQ_PRECHANGE) {
+ 		scale_freq_capacity(cpu, freq->new, max);
++		trace_cpu_capacity(capacity_curr_of(cpu), cpu);
++	}
+ 
+ 	return NOTIFY_OK;
+ }
+-- 
+1.9.1
+
