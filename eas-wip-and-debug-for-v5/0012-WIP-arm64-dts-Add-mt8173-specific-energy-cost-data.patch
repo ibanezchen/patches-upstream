@@ -1,0 +1,135 @@
+From 513aba4178907b282f6545fbb59410762d3c17c3 Mon Sep 17 00:00:00 2001
+From: Kapileshwar Singh <kapileshwar.singh@arm.com>
+Date: Wed, 8 Jul 2015 11:17:07 +0100
+Subject: [PATCH 12/38] WIP: arm64, dts: Add mt8173 specific energy cost data
+
+Add mt8173 (Mediatek) specific cost data nodes and associated pointers within
+the cpu nodes as per the DT bindings for energy model cost data required by
+EAS.
+
+Change-Id: I3ad659b14f64ef3a7d4d39e9785797bca9d1c243
+Signed-off-by: Kapileshwar Singh <kapileshwar.singh@arm.com>
+---
+ .../boot/dts/mediatek/mt8173-sched-energy.dtsi     | 64 ++++++++++++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi           |  6 ++
+ 2 files changed, 70 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8173-sched-energy.dtsi
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173-sched-energy.dtsi b/arch/arm64/boot/dts/mediatek/mt8173-sched-energy.dtsi
+new file mode 100644
+index 0000000..064a3aa
+--- /dev/null
++++ b/arch/arm64/boot/dts/mediatek/mt8173-sched-energy.dtsi
+@@ -0,0 +1,64 @@
++energy-costs {
++	CPU_COST_0: core-cost0 {
++		busy-cost-data = <
++			153    57
++			215    83
++			307   105
++			337   108
++			368   136
++			430   156
++			471   169
++			491   212
++		>;
++		idle-cost-data = <
++			  0
++		>;
++	};
++	CPU_COST_1: core-cost1 {
++		busy-cost-data = <
++			256   130
++			348   197
++			501   262
++			604   345
++			716   386
++			819   406
++			921   434
++		       1024   702
++		>;
++		idle-cost-data = <
++			  0
++		>;
++	};
++	CLUSTER_COST_0: cluster-cost0 {
++		busy-cost-data = <
++			153    30
++			215    47
++			307   119
++			337   143
++			368   143
++			430   196
++			471   226
++			491   226
++		>;
++		idle-cost-data = <
++			 80
++			 79
++		>;
++	};
++	CLUSTER_COST_1: cluster-cost1 {
++		busy-cost-data = <
++			256    67
++			348    89
++			501   156
++			604   181
++			716   298
++			819   435
++			921   533
++		       1024   533
++		>;
++		idle-cost-data = <
++			142
++			 96
++		>;
++	};
++};
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 16ed699..a6d8307 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -54,6 +54,7 @@
+ 			reg = <0x000>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+ 			clocks = <&infracfg CLK_INFRA_CA53SEL>,
+ 				 <&apmixedsys CLK_APMIXED_MAINPLL>;
+ 			clock-names = "cpu", "intermediate";
+@@ -78,6 +79,7 @@
+ 			reg = <0x001>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+ 			clocks = <&infracfg CLK_INFRA_CA53SEL>,
+ 				 <&apmixedsys CLK_APMIXED_MAINPLL>;
+ 			clock-names = "cpu", "intermediate";
+@@ -102,6 +104,7 @@
+ 			reg = <0x100>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+ 			clocks = <&infracfg CLK_INFRA_CA57SEL>,
+ 				 <&apmixedsys CLK_APMIXED_MAINPLL>;
+ 			clock-names = "cpu", "intermediate";
+@@ -126,6 +129,7 @@
+ 			reg = <0x101>;
+ 			enable-method = "psci";
+ 			cpu-idle-states = <&CPU_SLEEP_0>;
++			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+ 			clocks = <&infracfg CLK_INFRA_CA57SEL>,
+ 				 <&apmixedsys CLK_APMIXED_MAINPLL>;
+ 			clock-names = "cpu", "intermediate";
+@@ -156,6 +160,8 @@
+ 				arm,psci-suspend-param = <0x0010000>;
+ 			};
+ 		};
++
++		/include/ "mt8173-sched-energy.dtsi"
+ 	};
+ 
+ 	psci {
+-- 
+1.9.1
+

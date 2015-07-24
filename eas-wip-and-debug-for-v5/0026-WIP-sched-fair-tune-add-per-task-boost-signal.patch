@@ -1,0 +1,149 @@
+From 688420af97e8372609024424562e0fe1c4f3ffde Mon Sep 17 00:00:00 2001
+From: Patrick Bellasi <patrick.bellasi@arm.com>
+Date: Mon, 22 Jun 2015 16:44:48 +0100
+Subject: [PATCH 26/38] WIP: sched/{fair,tune}: add per task boost signal
+
+When per task boosting is enabled, all the CPUs and Task specific
+signals must be boosted according to the specific boost value defined by
+the boost group assigned to the task.
+
+This patch updates all the CFS scheduler consumers, for the task
+"utilization" signal and the CPU "usage" signal, to use the boost value
+defined by the boost group assigned to a task.
+
+Change-Id: I4348b387d66a7a8f458deca426c928d0341cf7a6
+Signed-off-by: Patrick Bellasi <patrick.bellasi@arm.com>
+---
+ kernel/sched/fair.c | 20 +++++++++++++++++---
+ kernel/sched/tune.c | 20 ++++++++++++++++++++
+ kernel/sched/tune.h |  3 +++
+ 3 files changed, 40 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 7ecc962..053a57c 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4901,6 +4901,7 @@ struct energy_env {
+ 	int			dst_cpu;
+ 	int			energy;
+ 	int			energy_payoff;
++	struct task_struct	*task;
+ 	struct {
+ 		int before;
+ 		int after;
+@@ -5125,7 +5126,11 @@ static int energy_diff_evaluate(struct energy_env *eenv)
+ 	int nrg_delta;
+ 
+ 	/* Return energy diff when boost margin is 0 */
++#ifdef CONFIG_CGROUP_SCHEDTUNE
++	boost = schedtune_taskgroup_boost(eenv->task);
++#else
+ 	boost = get_sysctl_sched_cfs_boost();
++#endif
+ 	if (boost == 0)
+ 		return eenv->nrg.diff;
+ 
+@@ -5368,7 +5373,11 @@ schedtune_task_margin(struct task_struct *task)
+ 	unsigned long utilization;
+ 	unsigned long margin;
+ 
++#ifdef CONFIG_CGROUP_SCHEDTUNE
++	boost = schedtune_taskgroup_boost(task);
++#else
+ 	boost = get_sysctl_sched_cfs_boost();
++#endif
+ 	if (boost == 0)
+ 		return 0;
+ 
+@@ -5439,12 +5448,16 @@ static inline bool task_fits_cpu(struct task_struct *p, int cpu)
+ #ifdef CONFIG_SCHED_TUNE
+ 
+ static inline unsigned int
+-schedtune_cpu_margin(unsigned long usage)
++schedtune_cpu_margin(int cpu, unsigned long usage)
+ {
+ 	unsigned int boost;
+ 	unsigned long margin;
+ 
++#ifdef CONFIG_CGROUP_SCHEDTUNE
++	boost = schedtune_cpu_boost(cpu);
++#else
+ 	boost = get_sysctl_sched_cfs_boost();
++#endif
+ 	if (boost == 0)
+ 		return 0;
+ 	margin = schedtune_margin(usage, boost);
+@@ -5455,7 +5468,7 @@ schedtune_cpu_margin(unsigned long usage)
+ #else /* CONFIG_SCHED_TUNE */
+ 
+ static inline unsigned int
+-schedtune_cpu_margin(unsigned long usage)
++schedtune_cpu_margin(int cpu, unsigned long usage)
+ {
+ 	return 0;
+ }
+@@ -5469,7 +5482,7 @@ get_boosted_cpu_usage(int cpu)
+ 	unsigned long margin;
+ 
+ 	usage = get_cpu_usage(cpu);
+-	margin = schedtune_cpu_margin(usage);
++	margin = schedtune_cpu_margin(cpu, usage);
+ 
+ 	usage += margin;
+ 	return usage;
+@@ -5731,6 +5744,7 @@ static int energy_aware_wake_cpu(struct task_struct *p, int target)
+ 			.usage_delta	= task_utilization(p),
+ 			.src_cpu	= task_cpu(p),
+ 			.dst_cpu	= target_cpu,
++			.task		= p,
+ 		};
+ 
+ 		/* Not enough spare capacity on previous cpu */
+diff --git a/kernel/sched/tune.c b/kernel/sched/tune.c
+index 343e300..f45311f 100644
+--- a/kernel/sched/tune.c
++++ b/kernel/sched/tune.c
+@@ -415,6 +415,26 @@ void schedtune_dequeue_task(struct task_struct *p, int cpu)
+ 	schedtune_tasks_update(p, cpu, idx, -1);
+ }
+ 
++int schedtune_taskgroup_boost(struct task_struct *p)
++{
++	struct schedtune *ct;
++	int task_boost;
++
++	rcu_read_lock();
++	ct = task_schedtune(p);
++	task_boost = ct->boost;
++	rcu_read_unlock();
++
++	return task_boost;
++}
++
++int schedtune_cpu_boost(int cpu)
++{
++	struct boost_groups *bg;
++	bg = &per_cpu(cpu_boost_groups, cpu);
++	return 	bg->boost_max;
++}
++
+ static u64
+ boost_read(struct cgroup_subsys_state *css, struct cftype *cft)
+ {
+diff --git a/kernel/sched/tune.h b/kernel/sched/tune.h
+index 2c3b00f..6e878ea 100644
+--- a/kernel/sched/tune.h
++++ b/kernel/sched/tune.h
+@@ -5,6 +5,9 @@ extern int schedtune_normalize_energy(int energy);
+ 
+ #ifdef CONFIG_CGROUP_SCHEDTUNE
+ 
++extern int schedtune_taskgroup_boost(struct task_struct *tsk);
++extern int schedtune_cpu_boost(int cpu);
++
+ extern void schedtune_enqueue_task(struct task_struct *p, int cpu);
+ extern void schedtune_dequeue_task(struct task_struct *p, int cpu);
+ 
+-- 
+1.9.1
+

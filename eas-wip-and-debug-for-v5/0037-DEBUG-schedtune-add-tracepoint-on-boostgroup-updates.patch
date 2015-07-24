@@ -1,0 +1,74 @@
+From d2febb0952fdcd5c2ec1e8b7851190c182c3807f Mon Sep 17 00:00:00 2001
+From: Patrick Bellasi <patrick.bellasi@arm.com>
+Date: Mon, 22 Jun 2015 14:11:22 +0100
+Subject: [PATCH 37/38] DEBUG: schedtune: add tracepoint on boostgroup updates
+
+Change-Id: I993971dde9af5e8914fc9dbc7c675a9f7bae0bba
+Signed-off-by: Patrick Bellasi <patrick.bellasi@arm.com>
+---
+ include/trace/events/sched.h | 25 +++++++++++++++++++++++++
+ kernel/sched/tune.c          |  5 +++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/include/trace/events/sched.h b/include/trace/events/sched.h
+index cb3ef4b..b56150b 100644
+--- a/include/trace/events/sched.h
++++ b/include/trace/events/sched.h
+@@ -855,6 +855,31 @@ TRACE_EVENT(sched_tune_filter,
+ 		__entry->nrg_payoff, __entry->region)
+ );
+ 
++/*
++ * Tracepoint for schedtune_boostgroup_update
++ */
++TRACE_EVENT(sched_tune_boostgroup_update,
++
++	TP_PROTO(int cpu, int variation, int max_boost),
++
++	TP_ARGS(cpu, variation, max_boost),
++
++	TP_STRUCT__entry(
++		__field( int,	cpu		)
++		__field( int,	variation	)
++		__field( int,	max_boost	)
++	),
++
++	TP_fast_assign(
++		__entry->cpu		= cpu;
++		__entry->variation	= variation;
++		__entry->max_boost	= max_boost;
++	),
++
++	TP_printk("cpu=%d variation=%d max_boost=%d",
++		__entry->cpu, __entry->variation, __entry->max_boost)
++);
++
+ #endif /* _TRACE_SCHED_H */
+ 
+ /* This part must be outside protection */
+diff --git a/kernel/sched/tune.c b/kernel/sched/tune.c
+index 9760a3f..2ec7e63 100644
+--- a/kernel/sched/tune.c
++++ b/kernel/sched/tune.c
+@@ -348,13 +348,18 @@ schedtune_boostgroup_update(int idx, int boost)
+ 		/* Check if this update increase current max */
+ 		if (boost > cur_boost_max && bg->group[idx].tasks) {
+ 			bg->boost_max = boost;
++			trace_sched_tune_boostgroup_update(cpu, 1, bg->boost_max);
+ 			continue;
+ 		}
+ 
+ 		/* Check if this update has decreased current max */
+ 		if (cur_boost_max == old_boost && old_boost > boost) {
+ 			schedtune_cpu_update(cpu);
++			trace_sched_tune_boostgroup_update(cpu, -1, bg->boost_max);
++			continue;
+ 		}
++
++		trace_sched_tune_boostgroup_update(cpu, 0, bg->boost_max);
+ 	}
+ 
+ 	return 0;
+-- 
+1.9.1
+
