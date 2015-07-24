@@ -1,0 +1,169 @@
+From 9de5271cc3aad72f1ceeb6518abb804d7908c81b Mon Sep 17 00:00:00 2001
+From: Patrick Bellasi <patrick.bellasi@arm.com>
+Date: Mon, 22 Jun 2015 18:11:44 +0100
+Subject: [PATCH 15/38] WIP: sched/tune: add sysctl interface to define a boost
+ value
+
+The energy-aware scheduler extension has been designed to exploit an
+energy model to support an energy efficient allocation of tasks on available
+CPUs. The main goal of the current implementation is to schedule
+tasks in such a way to minimise the expected system energy while still
+meeting the requirements of tasks in terms of computational demand.
+Thus, the current implementation does not allow "to boost" tasks performances,
+for example by running them at an higher OPP (or a more capable CPU), even
+if that could require a "reasonable" increase in energy consumption.
+
+To support tasks performance boosting, while still operating in energy-aware
+mode, the scheduler should to provide a "knob" which allows to tune how
+much the system is going to be optimised for energy efficiency vs performances.
+
+This patch is the first of a series which provides a simple sysctl based
+interface to define an EAS tuning knob.
+For the time being, just one system-wide "boost" tunable is exposed via:
+  /proc/sys/kernel/sched_cfs_boost
+which can be configured in the range [0..100], to define a percentage
+where:
+  - 0%   boost requires to operate in "standard" EAS mode by scheduling
+         tasks at the minimum capacities required by the workload demand
+  - 100% boost requires to push at maximum the task performances,
+         "regardless" of the incurred energy consumption
+
+A boost value in between these two boundaries is used to bias the
+power/performance trade-off, the higher the boost value the more the
+EAS scheduler is biased toward performance boosting instead of energy
+efficiency.
+
+Change-Id: I1fb22390aee04e8f1a55a9f30db505d9040ec693
+Signed-off-by: Patrick Bellasi <patrick.bellasi@arm.com>
+---
+ include/linux/sched/sysctl.h | 16 ++++++++++++++++
+ init/Kconfig                 | 27 +++++++++++++++++++++++++++
+ kernel/sched/Makefile        |  1 +
+ kernel/sched/tune.c          | 16 ++++++++++++++++
+ kernel/sysctl.c              | 11 +++++++++++
+ 5 files changed, 71 insertions(+)
+ create mode 100644 kernel/sched/tune.c
+
+diff --git a/include/linux/sched/sysctl.h b/include/linux/sched/sysctl.h
+index c9e4731..0362ae5 100644
+--- a/include/linux/sched/sysctl.h
++++ b/include/linux/sched/sysctl.h
+@@ -77,6 +77,22 @@ extern int sysctl_sched_rt_runtime;
+ extern unsigned int sysctl_sched_cfs_bandwidth_slice;
+ #endif
+ 
++#ifdef CONFIG_SCHED_TUNE
++extern unsigned int sysctl_sched_cfs_boost;
++int sysctl_sched_cfs_boost_handler(struct ctl_table *table, int write,
++		void __user *buffer, size_t *length,
++		loff_t *ppos);
++static inline unsigned int get_sysctl_sched_cfs_boost(void)
++{
++	return sysctl_sched_cfs_boost;
++}
++#else
++static inline unsigned int get_sysctl_sched_cfs_boost(void)
++{
++	return 0;
++}
++#endif
++
+ #ifdef CONFIG_SCHED_AUTOGROUP
+ extern unsigned int sysctl_sched_autogroup_enabled;
+ #endif
+diff --git a/init/Kconfig b/init/Kconfig
+index af09b4f..1c3b8eb 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1220,6 +1220,33 @@ config SCHED_AUTOGROUP
+ 	  desktop applications.  Task group autogeneration is currently based
+ 	  upon task session.
+ 
++config SCHED_TUNE
++	bool "Tasks boosting for energy-aware scheduler (EXPERIMENTAL)"
++	help
++	  This option enable the system-wide support for task boosting.
++	  When this support is enabled a new sysctl interface is exposed to
++	  userspace via:
++	     /proc/sys/kernel/sched_cfs_boost
++	  which allows to set a system-wide boost value in range [0..100].
++
++	  The currently boosting strategy is implemented in such a way that:
++	  - a 0% boost value requires to operate in "standard" EAS mode by
++	    scheduling all tasks at the minimum capacities required by their
++	    workload demand
++	  - a 100% boost value requires to push at maximum the task
++	    performances, "regardless" of the incurred energy consumption
++
++	  A boost value in between these two boundaries is used to bias the
++	  power/performance trade-off, the higher the boost value the more the
++	  EAS scheduler is biased toward performance boosting instead of energy
++	  efficiency.
++
++	  Since this support exposes a single system-wide knob, the specified
++	  boost value is applied to all (CFS) tasks in the system.
++
++	  Only if you are testing a kernel with energy-aware scheduler support,
++	  you might want to say Y here.
++
+ config SYSFS_DEPRECATED
+ 	bool "Enable deprecated sysfs features to support old userspace tools"
+ 	depends on SYSFS
+diff --git a/kernel/sched/Makefile b/kernel/sched/Makefile
+index 0eabc9d..c6a85f8 100644
+--- a/kernel/sched/Makefile
++++ b/kernel/sched/Makefile
+@@ -18,5 +18,6 @@ obj-$(CONFIG_SMP) += cpupri.o cpudeadline.o
+ obj-$(CONFIG_SCHED_AUTOGROUP) += auto_group.o
+ obj-$(CONFIG_SCHEDSTATS) += stats.o
+ obj-$(CONFIG_SCHED_DEBUG) += debug.o
++obj-$(CONFIG_SCHED_TUNE) += tune.o
+ obj-$(CONFIG_CGROUP_CPUACCT) += cpuacct.o
+ obj-$(CONFIG_CPU_FREQ_GOV_SCHED) += cpufreq_sched.o
+diff --git a/kernel/sched/tune.c b/kernel/sched/tune.c
+new file mode 100644
+index 0000000..25377e0
+--- /dev/null
++++ b/kernel/sched/tune.c
+@@ -0,0 +1,16 @@
++#include "sched.h"
++
++unsigned int sysctl_sched_cfs_boost __read_mostly = 0;
++
++int
++sysctl_sched_cfs_boost_handler(struct ctl_table *table, int write,
++		void __user *buffer, size_t *lenp,
++		loff_t *ppos)
++{
++	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++	if (ret || !write)
++		return ret;
++
++	return 0;
++}
++
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 19b62b5..2b4673e 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -433,6 +433,17 @@ static struct ctl_table kern_table[] = {
+ 		.extra1		= &one,
+ 	},
+ #endif
++#ifdef CONFIG_SCHED_TUNE
++	{
++		.procname	= "sched_cfs_boost",
++		.data		= &sysctl_sched_cfs_boost,
++		.maxlen		= sizeof(sysctl_sched_cfs_boost),
++		.mode		= 0644,
++		.proc_handler	= &sysctl_sched_cfs_boost_handler,
++		.extra1		= &zero,
++		.extra2		= &one_hundred,
++	},
++#endif
+ #ifdef CONFIG_PROVE_LOCKING
+ 	{
+ 		.procname	= "prove_locking",
+-- 
+1.9.1
+
