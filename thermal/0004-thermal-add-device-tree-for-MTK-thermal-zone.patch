@@ -1,4 +1,4 @@
-From a53219ff3d422a4a19d843a96762c1f24be48959 Mon Sep 17 00:00:00 2001
+From 6c0e0d3051089cd54f35a08924dc9e3440880525 Mon Sep 17 00:00:00 2001
 From: "Dawei.Chien" <dawei.chien@mediatek.com>
 Date: Mon, 1 Jun 2015 14:27:16 +0800
 Subject: [PATCH 4/6] thermal: add device tree for MTK thermal zone.
@@ -14,10 +14,10 @@ Change-Id: I762453445e07ef62e612ea0a9eae2472142b00df
  1 file changed, 23 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index b585c02..c0649d0 100644
+index 90575b77..c9c26f8 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -180,6 +180,29 @@
+@@ -181,6 +181,29 @@
  		clock-output-names = "clk32k";
  	};
  

@@ -1,7 +1,7 @@
-From 5efbdeee13f770f3b5fa4b38af6bccde21e16e3e Mon Sep 17 00:00:00 2001
+From ababfb21d25a1fdf727446fdc026516c3e582119 Mon Sep 17 00:00:00 2001
 From: James Liao <jamesjj.liao@mediatek.com>
 Date: Tue, 30 Jun 2015 10:58:47 +0800
-Subject: [PATCH 4/4] clk: mediatek: Add USB clock support in MT8173 APMIXEDSYS
+Subject: [PATCH 1/2] clk: mediatek: Add USB clock support in MT8173 APMIXEDSYS
 
 Add REF2USB_TX clock support into MT8173 APMIXEDSYS. This clock
 is needed by USB 3.0.
@@ -15,18 +15,18 @@ Signed-off-by: James Liao <jamesjj.liao@mediatek.com>
  3 files changed, 146 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/clk/mediatek/clk-mt8173.c b/drivers/clk/mediatek/clk-mt8173.c
-index 75be757..333b6af 100644
+index 90eff85..5eab7c5 100644
 --- a/drivers/clk/mediatek/clk-mt8173.c
 +++ b/drivers/clk/mediatek/clk-mt8173.c
-@@ -12,6 +12,7 @@
-  * GNU General Public License for more details.
+@@ -13,6 +13,7 @@
   */
  
+ #include <linux/clk.h>
 +#include <linux/delay.h>
  #include <linux/of.h>
  #include <linux/of_address.h>
  #include <linux/slab.h>
-@@ -968,6 +969,141 @@ static void __init mtk_pericfg_init(struct device_node *node)
+@@ -792,6 +793,141 @@ static void __init mtk_pericfg_init(struct device_node *node)
  }
  CLK_OF_DECLARE(mtk_pericfg, "mediatek,mt8173-pericfg", mtk_pericfg_init);
  
@@ -168,7 +168,7 @@ index 75be757..333b6af 100644
  #define MT8173_PLL_FMAX		(3000UL * MHZ)
  
  #define CON0_MT8173_RST_BAR	BIT(24)
-@@ -1010,12 +1146,19 @@ static const struct mtk_pll_data plls[] = {
+@@ -852,12 +988,19 @@ static const struct mtk_pll_data plls[] = {
  static void __init mtk_apmixedsys_init(struct device_node *node)
  {
  	struct clk_onecell_data *clk_data;
@@ -189,10 +189,10 @@ index 75be757..333b6af 100644
  	mtk_clk_enable_critical();
  }
 diff --git a/drivers/clk/mediatek/clk-pll.c b/drivers/clk/mediatek/clk-pll.c
-index 44409e9..813f0c7 100644
+index 622e7b6..966cab1 100644
 --- a/drivers/clk/mediatek/clk-pll.c
 +++ b/drivers/clk/mediatek/clk-pll.c
-@@ -302,7 +302,7 @@ void __init mtk_clk_register_plls(struct device_node *node,
+@@ -317,7 +317,7 @@ void __init mtk_clk_register_plls(struct device_node *node,
  		const struct mtk_pll_data *plls, int num_plls, struct clk_onecell_data *clk_data)
  {
  	void __iomem *base;
@@ -201,7 +201,7 @@ index 44409e9..813f0c7 100644
  	struct clk *clk;
  
  	base = of_iomap(node, 0);
-@@ -324,9 +324,4 @@ void __init mtk_clk_register_plls(struct device_node *node,
+@@ -339,9 +339,4 @@ void __init mtk_clk_register_plls(struct device_node *node,
  
  		clk_data->clks[pll->id] = clk;
  	}
@@ -212,7 +212,7 @@ index 44409e9..813f0c7 100644
 -			__func__, r);
  }
 diff --git a/include/dt-bindings/clock/mt8173-clk.h b/include/dt-bindings/clock/mt8173-clk.h
-index 6ce88bf..7b7c555 100644
+index 4ad76ed..bf1302e 100644
 --- a/include/dt-bindings/clock/mt8173-clk.h
 +++ b/include/dt-bindings/clock/mt8173-clk.h
 @@ -172,7 +172,8 @@

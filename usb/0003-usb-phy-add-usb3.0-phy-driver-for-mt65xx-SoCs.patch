@@ -1,4 +1,4 @@
-From 5fe2aff0bd164a3ca6ff76fc51aa7d75dd9ab9a3 Mon Sep 17 00:00:00 2001
+From 0615563514ed77800cd035edc67254fa0f1f8e67 Mon Sep 17 00:00:00 2001
 From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 Date: Tue, 7 Jul 2015 16:29:17 +0800
 Subject: [PATCH 3/5] usb: phy: add usb3.0 phy driver for mt65xx SoCs
@@ -13,12 +13,12 @@ Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
  create mode 100644 drivers/usb/phy/phy-mt65xx-usb3.c
 
 diff --git a/drivers/usb/phy/Kconfig b/drivers/usb/phy/Kconfig
-index 869c0cfcad..66ded00 100644
+index 7d3beee..ffe155a 100644
 --- a/drivers/usb/phy/Kconfig
 +++ b/drivers/usb/phy/Kconfig
-@@ -152,6 +152,16 @@ config USB_MSM_OTG
- 	  This driver is not supported on boards like trout which
- 	  has an external PHY.
+@@ -166,6 +166,16 @@ config USB_QCOM_8X16_PHY
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called phy-qcom-8x16-usb.
  
 +config USB_MT65XX_USB3_PHY
 +	tristate "Mediatek USB3.0 PHY controller Driver"
@@ -34,13 +34,13 @@ index 869c0cfcad..66ded00 100644
  	tristate "Marvell USB OTG support"
  	depends on USB_EHCI_MV && USB_MV_UDC && PM
 diff --git a/drivers/usb/phy/Makefile b/drivers/usb/phy/Makefile
-index e36ab1d..414ef57 100644
+index 19c0dcc..a51aada 100644
 --- a/drivers/usb/phy/Makefile
 +++ b/drivers/usb/phy/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_USB_EHCI_TEGRA)		+= phy-tegra-usb.o
- obj-$(CONFIG_USB_GPIO_VBUS)		+= phy-gpio-vbus-usb.o
+@@ -21,6 +21,7 @@ obj-$(CONFIG_USB_GPIO_VBUS)		+= phy-gpio-vbus-usb.o
  obj-$(CONFIG_USB_ISP1301)		+= phy-isp1301.o
  obj-$(CONFIG_USB_MSM_OTG)		+= phy-msm-usb.o
+ obj-$(CONFIG_USB_QCOM_8X16_PHY)	+= phy-qcom-8x16-usb.o
 +obj-$(CONFIG_USB_MT65XX_USB3_PHY)	+= phy-mt65xx-usb3.o
  obj-$(CONFIG_USB_MV_OTG)		+= phy-mv-usb.o
  obj-$(CONFIG_USB_MXS_PHY)		+= phy-mxs-usb.o
