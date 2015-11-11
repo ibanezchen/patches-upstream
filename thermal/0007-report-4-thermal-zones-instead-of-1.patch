@@ -1,0 +1,113 @@
+From d3ce8646a65d16c351b94952c8b6ea3249b02977 Mon Sep 17 00:00:00 2001
+From: "freedom.tan" <freedom.tan@mediatek.com>
+Date: Wed, 11 Nov 2015 17:20:56 +0800
+Subject: [PATCH 7/7] report 4 thermal zones instead of 1
+
+a thermal zone for each bank makes more sense to me
+---
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi |  2 +-
+ drivers/thermal/mtk_thermal.c            | 45 ++++++++++++++------------------
+ 2 files changed, 21 insertions(+), 26 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index a7a07e1..071a074 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -693,7 +693,7 @@
+ 		};
+ 
+ 		thermal: thermal@1100b000 {
+-			#thermal-sensor-cells = <0>;
++			#thermal-sensor-cells = <1>;
+ 			compatible = "mediatek,mt8173-thermal";
+ 			reg = <0 0x1100b000 0 0x1000>;
+ 			interrupts = <0 70 IRQ_TYPE_LEVEL_LOW>;
+diff --git a/drivers/thermal/mtk_thermal.c b/drivers/thermal/mtk_thermal.c
+index 2d2e97c..7009e11 100644
+--- a/drivers/thermal/mtk_thermal.c
++++ b/drivers/thermal/mtk_thermal.c
+@@ -123,6 +123,7 @@ struct mtk_thermal;
+ 
+ struct mtk_thermal_bank {
+ 	struct mtk_thermal *mt;
++	struct thermal_zone_device *tz;
+ 	int id;
+ };
+ 
+@@ -142,8 +143,6 @@ struct mtk_thermal {
+ 	s32 degc_cali;
+ 	s32 o_slope;
+ 	s32 vts[MT8173_NUM_SENSORS];
+-
+-	struct thermal_zone_device *tzd;
+ };
+ 
+ struct mtk_thermal_bank_cfg {
+@@ -291,25 +290,11 @@ static int mtk_thermal_bank_temperature(struct mtk_thermal_bank *bank)
+ 
+ static int mtk_read_temp(void *data, int *temperature)
+ {
+-	struct mtk_thermal *mt = data;
+-	int i;
+-	int tempmax = INT_MIN;
+-
+-	for (i = 0; i < MT8173_NUM_ZONES; i++) {
+-		struct mtk_thermal_bank *bank = &mt->banks[i];
+-		int t;
+-
+-		mtk_thermal_get_bank(bank);
++	struct mtk_thermal_bank *bank = data;
+ 
+-		t = mtk_thermal_bank_temperature(bank);
+-
+-		mtk_thermal_put_bank(bank);
+-
+-		if (t > tempmax)
+-			tempmax = t;
+-	}
+-
+-	*temperature = tempmax;
++	mtk_thermal_get_bank(bank);
++	*temperature = mtk_thermal_bank_temperature(bank);
++	mtk_thermal_put_bank(bank);
+ 
+ 	return 0;
+ }
+@@ -568,10 +553,14 @@ static int mtk_thermal_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, mt);
+ 
+-	mt->tzd = thermal_zone_of_sensor_register(&pdev->dev, 0, mt,
+-				&mtk_thermal_ops);
+-	if (IS_ERR(mt->tzd))
+-		goto err_register;
++	for (i = 0; i < MT8173_NUM_ZONES; i++) {
++		struct mtk_thermal_bank *bank = &mt->banks[i];
++
++		bank->tz = thermal_zone_of_sensor_register(&pdev->dev, i, bank,
++			&mtk_thermal_ops);
++		if (IS_ERR(bank->tz))
++			goto err_register;
++	}
+ 
+ 	return 0;
+ 
+@@ -587,8 +576,14 @@ err_disable_clk_auxadc:
+ static int mtk_thermal_remove(struct platform_device *pdev)
+ {
+ 	struct mtk_thermal *mt = platform_get_drvdata(pdev);
++	int i;
+ 
+-	thermal_zone_of_sensor_unregister(&pdev->dev, mt->tzd);
++	for (i = 0; i < MT8173_NUM_ZONES; i++) {
++		struct mtk_thermal_bank *bank = &mt->banks[i];
++
++		if (!IS_ERR(bank))
++			thermal_zone_of_sensor_unregister(&pdev->dev, bank->tz);
++	}
+ 
+ 	clk_disable_unprepare(mt->clk_peri_therm);
+ 	clk_disable_unprepare(mt->clk_auxadc);
+-- 
+1.9.1
+
